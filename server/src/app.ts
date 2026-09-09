@@ -128,7 +128,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     await db()
       .update(userTable)
       .set({ locale: parsed.data.locale, timezone: parsed.data.timezone, updatedAt: new Date() })
-      .where(eq(userTable.id, result.session!.user.id));
+      .where(eq(userTable.id, result.session.user.id));
     return parsed.data;
   });
 
@@ -141,7 +141,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     return {
       sessions: list.map((entry) => ({
         id: entry.id,
-        current: entry.token === result.session!.session.token,
+        current: entry.token === result.session.session.token,
         createdAt: new Date(entry.createdAt).toISOString(),
         expiresAt: new Date(entry.expiresAt).toISOString(),
         client: clientLabel(entry.userAgent),
