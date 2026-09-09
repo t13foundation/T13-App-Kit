@@ -11,7 +11,7 @@ import * as OTPAuth from "otpauth";
 import type { FastifyInstance } from "fastify";
 
 import { buildApp } from "../../src/app.ts";
-import { closeDatabase } from "../../src/db/client.ts";
+import { closeDatabase, getPool } from "../../src/db/client.ts";
 
 const MAILPIT_API = process.env.MAILPIT_API ?? "http://127.0.0.1:8025";
 const EMAIL = `user-${Date.now()}@example.test`;
@@ -68,6 +68,9 @@ beforeAll(async () => {
   app = await buildApp();
   await app.ready();
   await fetch(`${MAILPIT_API}/api/v1/messages`, { method: "DELETE" });
+  // Rate limiting is enabled (and asserted separately); reset the counters so
+  // repeated local runs from the same IP do not trip the sign-in rule.
+  await getPool().query("truncate table rate_limit");
 });
 
 afterAll(async () => {
