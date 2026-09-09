@@ -1,0 +1,105 @@
+name: One final accounts check
+
+# One isolated validation branch. This file is NOT installed on main.
+on:
+  push:
+    branches: [checks/accounts-merge-20260909]
+    paths: [.github/workflows/final-accounts-check.yml]
+permissions:
+  contents: read
+concurrency:
+  group: accounts-merge-final-check
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      APP_NAME: App
+      APP_URL: http://localhost:8080
+      AUTH_URL: http://localhost:8080
+      TRUSTED_ORIGINS: http://localhost:8080
+      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5433/appkit_test
+      SMTP_HOST: 127.0.0.1
+      SMTP_PORT: '1025'
+      SMTP_SECURE: 'false'
+      MAIL_FROM: no-reply@example.test
+      MAILPIT_API: http://127.0.0.1:8025
+      ALLOW_TEST_DATABASE_RESET: 'true'
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: appkit_test
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+      mailpit:
+        image: axllent/mailpit:latest
+        ports: ['1025:1025', '8025:8025']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Generate isolated ephemeral test secret
+        shell: bash
+        run: |
+          secret=$(openssl rand -hex 32)
+          echo "::add-mask::$secret"
+          echo "BETTER_AUTH_SECRET=$secret" >> "$GITHUB_ENV"
+      - name: Source integrity and pure boundary tests
+        run: |
+          node scripts/check-source-integrity.mjs
+          node --experimental-strip-types --test tests/*.test.mjs
+      - name: Install locked web dependencies
+        id: web_install
+        run: bun install --frozen-lockfile
+      - name: Build web and generate route types
+        id: build
+        continue-on-error: true
+        run: bun run build
+      - name: Full web typecheck
+        id: web_types
+        continue-on-error: true
+        run: ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - name: Install locked API dependencies
+        id: api_install
+        working-directory: server
+        run: bun install --frozen-lockfile
+      - name: Full API typecheck
+        id: api_types
+        continue-on-error: true
+        working-directory: server
+        run: bun run typecheck
+      - name: Apply existing migrations to dedicated test database
+        working-directory: server
+        env:
+          NODE_ENV: test
+        run: bun run db:migrate
+      - name: Existing and merged API regressions with real PostgreSQL and SMTP
+        id: tests
+        continue-on-error: true
+        working-directory: server
+        env:
+          NODE_ENV: test
+        run: ./node_modules/.bin/vitest run
+      - name: Require all checks to pass
+        if: always()
+        env:
+          BUILD: ${{ steps.build.outcome }}
+          WEB_TYPES: ${{ steps.web_types.outcome }}
+          API_TYPES: ${{ steps.api_types.outcome }}
+          TESTS: ${{ steps.tests.outcome }}
+        run: |
+          printf 'build=%s web_types=%s api_types=%s tests=%s\n' "$BUILD" "$WEB_TYPES" "$API_TYPES" "$TESTS"
+          test "$BUILD" = success
+          test "$WEB_TYPES" = success
+          test "$API_TYPES" = success
+          test "$TESTS" = success
