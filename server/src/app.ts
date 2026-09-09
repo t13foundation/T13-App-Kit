@@ -90,7 +90,8 @@ export async function buildApp(): Promise<FastifyInstance> {
     // Only an explicitly configured proxy list is trusted. `true` would let any
     // caller forge its client address through X-Forwarded-For.
     trustProxy: cfg.TRUSTED_PROXIES.length > 0 ? cfg.TRUSTED_PROXIES : false,
-    disableRequestLogging: true,
+    // Fastify 5: request/response auto-logging is disabled through logController.
+    logController: { disableRequestLogging: true },
     logger: {
       level: cfg.NODE_ENV === "test" ? "silent" : "info",
     },
