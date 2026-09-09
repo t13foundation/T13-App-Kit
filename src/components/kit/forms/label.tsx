@@ -4,8 +4,8 @@ import type { ReactNode, Ref } from "react";
 import { HelpCircle } from "@untitledui/icons";
 import type { LabelProps as AriaLabelProps } from "react-aria-components";
 import { Label as AriaLabel } from "react-aria-components";
-import { Tooltip, TooltipTrigger } from "@/components/base/tooltip/tooltip";
-import { cx } from "@/utils/cx";
+import { Tooltip, TooltipTrigger } from "@/components/kit/feedback/tooltip";
+import { cx } from "@/components/kit/utils/cx";
 
 interface LabelProps extends AriaLabelProps {
     children: ReactNode;

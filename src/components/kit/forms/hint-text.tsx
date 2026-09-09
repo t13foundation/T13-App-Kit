@@ -3,7 +3,7 @@
 import type { ReactNode, Ref } from "react";
 import type { TextProps as AriaTextProps } from "react-aria-components";
 import { Text as AriaText } from "react-aria-components";
-import { cx } from "@/utils/cx";
+import { cx } from "@/components/kit/utils/cx";
 
 interface HintTextProps extends AriaTextProps {
     /** Indicates that the hint text is an error message. */

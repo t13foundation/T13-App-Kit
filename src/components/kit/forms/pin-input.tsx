@@ -3,9 +3,9 @@
 import type { ComponentPropsWithRef } from "react";
 import { createContext, useContext, useId } from "react";
 import { OTPInput, OTPInputContext } from "input-otp";
-import { HintText } from "@/components/base/input/hint-text";
-import { Label as LabelBase } from "@/components/base/input/label";
-import { cx } from "@/utils/cx";
+import { HintText } from "@/components/kit/forms/hint-text";
+import { Label as LabelBase } from "@/components/kit/forms/label";
+import { cx } from "@/components/kit/utils/cx";
 
 type PinInputSize = "xxxs" | "xxs" | "xs" | "sm" | "md" | "lg";
 

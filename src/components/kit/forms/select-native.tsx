@@ -2,9 +2,9 @@
 
 import { type SelectHTMLAttributes, useId } from "react";
 import { ChevronDown } from "@untitledui/icons";
-import { HintText } from "@/components/base/input/hint-text";
-import { Label } from "@/components/base/input/label";
-import { cx } from "@/utils/cx";
+import { HintText } from "@/components/kit/forms/hint-text";
+import { Label } from "@/components/kit/forms/label";
+import { cx } from "@/components/kit/utils/cx";
 
 interface NativeSelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, "size"> {
     label?: string;
