@@ -20,6 +20,8 @@ const FRESH_SESSION_MS = 5 * 60 * 1000;
  * Headers a client must never be able to set: they would let a caller forge
  * its own IP address for rate limiting and auth decisions.
  */
+const CLIENT_IP_HEADER = "x-app-client-ip";
+
 const SPOOFABLE_IP_HEADERS = [
   "forwarded",
   "x-forwarded-for",
@@ -32,13 +34,33 @@ const SPOOFABLE_IP_HEADERS = [
   "cf-connecting-ip",
   "true-client-ip",
   "fastly-client-ip",
+  // Our own resolved-address header: a client must never be able to preset it.
+  CLIENT_IP_HEADER,
 ];
 
-/** Better Auth paths that must never be reachable from the public API. */
-const BLOCKED_AUTH_PATHS = new Set([
-  `${AUTH_BASE_PATH}/list-sessions`,
-  `${AUTH_BASE_PATH}/token`,
-]);
+/**
+ * Better Auth paths that must never be reachable from the public API. They
+ * would bypass our safe session wrapper or the freshness requirement. The
+ * comparison is done on a normalised, lower-cased path so a trailing slash
+ * cannot be used to slip past it.
+ */
+const BLOCKED_AUTH_PATHS = new Set(
+  [
+    "/list-sessions",
+    "/token",
+    "/revoke-session",
+    "/revoke-sessions",
+    "/revoke-other-sessions",
+    "/delete-user",
+    "/change-email",
+  ].map((path) => `${AUTH_BASE_PATH}${path}`),
+);
+
+function normalisePath(pathname: string): string {
+  const lower = decodeURIComponent(pathname).toLowerCase();
+  const collapsed = lower.replace(/\/{2,}/g, "/");
+  return collapsed.length > 1 ? collapsed.replace(/\/+$/, "") : collapsed;
+}
 
 type SessionResult = Awaited<ReturnType<typeof requireVerifiedSession>>;
 
@@ -74,12 +96,18 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
   });
 
-  // Strip forwarding headers unless a trusted proxy is configured, so they can
-  // never reach Fastify's IP resolution or Better Auth.
+  /**
+   * Address handling: read Fastify's resolved `request.ip` first (it only
+   * honours forwarding headers when an explicit trusted proxy list is set),
+   * then delete every client-supplied address header and expose the resolved
+   * value under one header of our own. Better Auth is configured to read that
+   * header exclusively, so a non-empty proxy list never means "trust whoever
+   * sent this request".
+   */
   app.addHook("onRequest", async (request) => {
-    if (cfg.TRUSTED_PROXIES.length === 0) {
-      for (const header of SPOOFABLE_IP_HEADERS) delete request.headers[header];
-    }
+    const clientIp = request.ip;
+    for (const header of SPOOFABLE_IP_HEADERS) delete request.headers[header];
+    request.headers[CLIENT_IP_HEADER] = clientIp;
   });
 
   // Never cache account or auth responses anywhere.
@@ -174,7 +202,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     url: `${AUTH_BASE_PATH}/*`,
     handler: async (request, reply) => {
       const url = new URL(request.url, cfg.AUTH_URL);
-      if (BLOCKED_AUTH_PATHS.has(url.pathname)) {
+      if (BLOCKED_AUTH_PATHS.has(normalisePath(url.pathname))) {
         return fail(reply, 404, "not_found");
       }
 

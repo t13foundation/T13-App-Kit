@@ -7,6 +7,7 @@ const app = await buildApp();
 try {
   await app.listen({ port: cfg.PORT, host: cfg.HOST });
 } catch (error) {
-  app.log.error(error);
+  // Name only: a startup failure must not print configuration or secrets.
+  app.log.error({ err: error instanceof Error ? error.name : "Error" }, "listen_failed");
   process.exit(1);
 }
