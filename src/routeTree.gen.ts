@@ -18,7 +18,6 @@ import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as TwoFactorRouteImport } from './routes/two-factor'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
-import { Route as ApiSplatRouteImport } from './routes/api.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -65,11 +64,6 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
   path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiSplatRoute = ApiSplatRouteImport.update({
-  id: '/api/$',
-  path: '/api/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,7 +75,6 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof SignUpRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/api/$': typeof ApiSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,7 +86,6 @@ export interface FileRoutesByTo {
   '/sign-up': typeof SignUpRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/api/$': typeof ApiSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,7 +98,6 @@ export interface FileRoutesById {
   '/sign-up': typeof SignUpRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/api/$': typeof ApiSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,7 +111,6 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/two-factor'
     | '/verify-email'
-    | '/api/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -132,7 +122,6 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/two-factor'
     | '/verify-email'
-    | '/api/$'
   id:
     | '__root__'
     | '/'
@@ -144,7 +133,6 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/two-factor'
     | '/verify-email'
-    | '/api/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -157,7 +145,6 @@ export interface RootRouteChildren {
   SignUpRoute: typeof SignUpRoute
   TwoFactorRoute: typeof TwoFactorRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
-  ApiSplatRoute: typeof ApiSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -225,13 +212,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/$': {
-      id: '/api/$'
-      path: '/api/$'
-      fullPath: '/api/$'
-      preLoaderRoute: typeof ApiSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -245,7 +225,6 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpRoute: SignUpRoute,
   TwoFactorRoute: TwoFactorRoute,
   VerifyEmailRoute: VerifyEmailRoute,
-  ApiSplatRoute: ApiSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -104,9 +104,11 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   // Generic error shape: never leak SQL, secrets, private content or reset URLs.
-  app.setErrorHandler((error, request, reply) => {
-    const status = typeof error.statusCode === "number" ? error.statusCode : 500;
-    if (status >= 500) request.log.error({ err: error.name }, "unhandled_error");
+  app.setErrorHandler((error: unknown, request, reply) => {
+    const err = (error ?? {}) as { statusCode?: number; name?: string };
+    const status = typeof err.statusCode === "number" ? err.statusCode : 500;
+    if (status >= 500) request.log.error({ err: err.name ?? "Error" }, "unhandled_error");
+
     const code =
       status === 429
         ? "rate_limited"
