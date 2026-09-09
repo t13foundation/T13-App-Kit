@@ -35,6 +35,7 @@ function SignUpPage() {
       }
     >
       <form
+        method="post"
         className="flex flex-col gap-5"
         onSubmit={(event) => {
           event.preventDefault();

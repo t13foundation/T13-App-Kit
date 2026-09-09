@@ -156,6 +156,7 @@ function PreferencesSection({ locale, timezone }: { locale: string; timezone: st
       {message ? <Alert tone="success">{message}</Alert> : null}
       {error ? <Alert tone="error">{error}</Alert> : null}
       <form
+        method="post"
         className="flex flex-col gap-4"
         onSubmit={(event) => {
           event.preventDefault();
@@ -201,6 +202,7 @@ function PasswordSection() {
       {message ? <Alert tone="success">{message}</Alert> : null}
       {error ? <Alert tone="error">{error}</Alert> : null}
       <form
+        method="post"
         className="flex flex-col gap-4"
         onSubmit={(event) => {
           event.preventDefault();
@@ -266,6 +268,7 @@ function TwoFactorSection({ enabled }: { enabled: boolean }) {
 
       {!enabled ? (
         <form
+          method="post"
           className="flex flex-col gap-4"
           onSubmit={(event) => {
             event.preventDefault();
@@ -289,6 +292,7 @@ function TwoFactorSection({ enabled }: { enabled: boolean }) {
         </form>
       ) : (
         <form
+          method="post"
           className="flex flex-col gap-4"
           onSubmit={(event) => {
             event.preventDefault();
@@ -334,6 +338,7 @@ function TwoFactorSection({ enabled }: { enabled: boolean }) {
             </div>
           ) : null}
           <form
+            method="post"
             className="flex flex-col gap-4"
             onSubmit={(event) => {
               event.preventDefault();

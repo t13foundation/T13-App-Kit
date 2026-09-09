@@ -9,10 +9,10 @@ import { ApiRequestError } from "@/lib/api";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Aplikacja — konto i ustawienia" },
-      { name: "description", content: "Konto użytkownika, bezpieczeństwo i ustawienia." },
-      { property: "og:title", content: "Aplikacja — konto i ustawienia" },
-      { property: "og:description", content: "Konto użytkownika, bezpieczeństwo i ustawienia." },
+      { title: `${appConfig.name} — konto i ustawienia` },
+      { name: "description", content: appConfig.description },
+      { property: "og:title", content: `${appConfig.name} — konto i ustawienia` },
+      { property: "og:description", content: appConfig.description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

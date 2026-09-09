@@ -1,0 +1,33 @@
+# Local development services only: PostgreSQL and Mailpit.
+# Both bind to localhost, contain no production data and no real recipients.
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      # Local development value; production credentials are never defaulted.
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: appkit
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - appkit-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1025:1025" # SMTP
+      - "127.0.0.1:8025:8025" # web UI / API
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+volumes:
+  appkit-pgdata:

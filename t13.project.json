@@ -1,0 +1,30 @@
+{
+  "name": "t13-app-kit",
+  "version": "0.1.0-dev",
+  "telemetry": false,
+  "modules": {
+    "ui": {
+      "status": "enabled",
+      "card": "docs/modules/ui.md",
+      "source": "third-party/untitledui-react/SOURCE.md"
+    },
+    "accounts": {
+      "status": "enabled",
+      "card": "docs/modules/accounts.md"
+    },
+    "security": {
+      "status": "enabled",
+      "card": "docs/modules/security.md"
+    },
+    "profile-editing": { "status": "planned" },
+    "account-deletion": { "status": "planned" },
+    "data-export": { "status": "planned" },
+    "files": { "status": "planned" },
+    "sharing": { "status": "planned" },
+    "admin": { "status": "planned" },
+    "organizations": { "status": "planned" },
+    "billing": { "status": "planned" },
+    "ai": { "status": "planned" },
+    "mobile": { "status": "planned" }
+  }
+}

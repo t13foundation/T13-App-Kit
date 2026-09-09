@@ -52,9 +52,14 @@ export function createAuth() {
       deleteUser: { enabled: false },
     },
 
+    // The library must never print request bodies, tokens or reset URLs.
+    logger: { disabled: true },
+
     session: {
       expiresIn: 60 * 60 * 24 * 7,
       updateAge: 60 * 60 * 24,
+      // Sensitive operations require a session authenticated within 5 minutes.
+      freshAge: 300,
       // No cookie cache: a revoked session must stop working immediately.
       cookieCache: { enabled: false },
     },
@@ -77,6 +82,9 @@ export function createAuth() {
     },
 
     advanced: {
+      // Only the address header the API sets itself, from Fastify's resolved
+      // request.ip, is trusted. Client-sent forwarding headers are stripped.
+      ipAddress: { ipAddressHeaders: ["x-app-client-ip"] },
       useSecureCookies: secure,
       disableCSRFCheck: false,
       disableOriginCheck: false,

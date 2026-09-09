@@ -11,7 +11,7 @@ import { createFileRoute } from "@tanstack/react-router";
  * every Set-Cookie header is forwarded as its own header — never comma-joined.
  */
 const TIMEOUT_MS = 15_000;
-const MAX_BODY_BYTES = 1024 * 1024;
+const MAX_BODY_BYTES = 64 * 1024;
 
 /** Hop-by-hop headers that must not be forwarded. */
 const STRIPPED = new Set([
@@ -26,6 +26,53 @@ const STRIPPED = new Set([
   "host",
   "content-length",
 ]);
+
+/**
+ * Address headers a client must never be able to set: forwarding them would
+ * let any caller forge its own IP for rate limiting and auth decisions.
+ */
+const SPOOFABLE_IP_HEADERS = new Set([
+  "forwarded",
+  "x-forwarded-for",
+  "x-forwarded-host",
+  "x-forwarded-proto",
+  "x-forwarded-port",
+  "x-real-ip",
+  "x-client-ip",
+  "x-cluster-client-ip",
+  "cf-connecting-ip",
+  "true-client-ip",
+  "fastly-client-ip",
+  "x-app-client-ip",
+]);
+
+/**
+ * Reads at most `limit` bytes and aborts as soon as the stream exceeds it, so
+ * an oversized upload is never buffered in full.
+ */
+async function readLimitedBody(request: Request, limit: number): Promise<ArrayBuffer | null> {
+  const reader = request.body?.getReader();
+  if (!reader) return new ArrayBuffer(0);
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const out = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return out.buffer;
+}
 
 function backendUrl(): string | null {
   const raw = process.env['API_INTERNAL_URL'];
@@ -42,7 +89,7 @@ function backendUrl(): string | null {
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", "cache-control": "no-store" },
   });
 }
 
@@ -60,15 +107,18 @@ async function proxy({ request }: { request: Request }): Promise<Response> {
 
   const headers = new Headers();
   request.headers.forEach((value, key) => {
-    if (!STRIPPED.has(key.toLowerCase())) headers.set(key, value);
+    const name = key.toLowerCase();
+    if (STRIPPED.has(name) || SPOOFABLE_IP_HEADERS.has(name)) return;
+    headers.set(key, value);
   });
 
   let body: ArrayBuffer | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
-    body = await request.arrayBuffer();
-    if (body.byteLength > MAX_BODY_BYTES) {
+    const limited = await readLimitedBody(request, MAX_BODY_BYTES);
+    if (limited === null) {
       return json(413, { error: { code: "payload_too_large", message: "payload_too_large" } });
     }
+    body = limited;
   }
 
   const controller = new AbortController();
