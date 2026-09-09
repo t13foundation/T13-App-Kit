@@ -1,0 +1,29 @@
+/*
+ * White-label theme override.
+ *
+ * The upstream Untitled UI token file (../tokens/theme.css) ships a violet
+ * brand ramp. The kit is white label, so every brand step is remapped onto a
+ * neutral gray ramp here. Nothing else in the token file is modified, which
+ * keeps future upstream syncs a straight file copy.
+ *
+ * To re-brand an application, override the same variables in the app stylesheet
+ * (after this file is imported) instead of editing tokens/theme.css.
+ */
+
+@theme {
+    --color-brand-50: rgb(249 250 251);
+    --color-brand-100: rgb(243 244 246);
+    --color-brand-200: rgb(229 231 235);
+    --color-brand-300: rgb(209 213 219);
+    --color-brand-400: rgb(156 163 175);
+    --color-brand-500: rgb(107 114 128);
+    --color-brand-600: rgb(52 64 84);
+    --color-brand-700: rgb(29 41 57);
+    --color-brand-800: rgb(23 32 45);
+    --color-brand-900: rgb(16 24 40);
+    --color-brand-950: rgb(12 17 29);
+
+    /* Page background stays pure white. */
+    --color-bg-primary: rgb(255 255 255);
+    --color-bg-secondary: rgb(249 250 251);
+}
