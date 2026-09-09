@@ -1,13 +1,21 @@
-name: CI
+name: CI (manual)
 
+# GitHub Minutes are restricted. Prefer local checks at the end of a change.
+# This workflow never runs on push or pull_request; dispatch it explicitly only.
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-kit-manual-checks
+  cancel-in-progress: true
 
 jobs:
   checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
