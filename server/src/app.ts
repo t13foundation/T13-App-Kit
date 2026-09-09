@@ -99,7 +99,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     if (result.error) {
       return reply.status(result.error.status).send({ error: { code: result.error.code, message: result.error.code } });
     }
-    const u = result.session.user as typeof result.session!.user & {
+    const u = result.session.user as (typeof result.session)["user"] & {
       locale?: string;
       timezone?: string;
       twoFactorEnabled?: boolean | null;
