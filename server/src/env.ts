@@ -20,6 +20,7 @@ const envSchema = z.object({
   HOST: z.string().default("127.0.0.1"),
 
   /** Public base URL of the web app; used for links inside emails. */
+  APP_NAME: z.string().min(1).default("Aplikacja"),
   APP_URL: z.string().url(),
   /** Public base URL the auth API is reachable at (proxy origin included). */
   AUTH_URL: z.string().url(),
