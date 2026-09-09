@@ -249,7 +249,9 @@ test("password reset goes through email and still requires the second factor", a
   expect(forget.statusCode).toBe(200);
 
   const link = await lastMailLinkTo(EMAIL);
-  const token = new URL(link).searchParams.get("token") ?? "";
+  const parsed = new URL(link);
+  // Better Auth links carry the token either as ?token= or as the last path segment.
+  const token = parsed.searchParams.get("token") ?? parsed.pathname.split("/").pop() ?? "";
   expect(token.length).toBeGreaterThan(10);
 
   const reset = await app.inject({
