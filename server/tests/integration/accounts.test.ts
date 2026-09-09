@@ -12,14 +12,20 @@ import type { FastifyInstance } from "fastify";
 
 import { buildApp } from "../../src/app.ts";
 import { closeDatabase, getPool } from "../../src/db/client.ts";
+import { assertLocalMailpit, assertResettableTestDatabase } from "../setup/test-database.ts";
 
-const MAILPIT_API = process.env.MAILPIT_API ?? "http://127.0.0.1:8025";
+// Refuses to run (and to delete anything) unless this is an explicitly enabled,
+// local, dedicated appkit_test database and a local Mailpit.
+assertResettableTestDatabase();
+const MAILPIT_API = assertLocalMailpit(process.env.MAILPIT_API ?? "http://127.0.0.1:8025");
 const EMAIL = `user-${Date.now()}@example.test`;
+const OTHER_EMAIL = `other-${Date.now()}@example.test`;
 const PASSWORD = "Bardzo-Dlugie-Haslo-123";
 const NEW_PASSWORD = "Inne-Bardzo-Dlugie-Haslo-456";
 const ORIGIN = "http://localhost:8080";
 
 let app: FastifyInstance;
+let backupCodes: string[] = [];
 
 function cookiesOf(res: { headers: Record<string, unknown> }): string {
   const raw = res.headers["set-cookie"];
@@ -157,6 +163,7 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
   expect(enable.statusCode).toBe(200);
   const enableBody = enable.json() as { totpURI: string; backupCodes: string[] };
   expect(enableBody.backupCodes.length).toBeGreaterThan(0);
+  backupCodes = enableBody.backupCodes;
   const totp = OTPAuth.URI.parse(enableBody.totpURI) as OTPAuth.TOTP;
 
   const confirm = await app.inject({
@@ -283,10 +290,128 @@ test("foreign origin is rejected and disabled library paths stay unreachable", a
     headers: { origin: "http://evil.example.com" },
     payload: { email: EMAIL, password: NEW_PASSWORD },
   });
-  expect(foreign.statusCode).toBeGreaterThanOrEqual(400);
+  expect(foreign.statusCode).toBe(403);
+
+  // Our own mutations enforce Origin as well; CORS alone would not.
+  const noOrigin = await app.inject({
+    method: "PUT",
+    url: "/api/me/preferences",
+    payload: { locale: "en", timezone: "Europe/Berlin" },
+  });
+  expect(noOrigin.statusCode).toBe(403);
+  expect(noOrigin.json()).toMatchObject({ error: { code: "invalid_origin" } });
+
+  const evilOrigin = await app.inject({
+    method: "PUT",
+    url: "/api/me/preferences",
+    headers: { origin: "http://evil.example.com" },
+    payload: { locale: "en", timezone: "Europe/Berlin" },
+  });
+  expect(evilOrigin.statusCode).toBe(403);
+
+  // The raw library session list would expose tokens: it must not exist,
+  // including with a trailing slash.
+  for (const path of ["/api/auth/list-sessions", "/api/auth/list-sessions/", "/api/auth/token"]) {
+    const res = await app.inject({ method: "GET", url: path, headers: { origin: ORIGIN } });
+    expect(res.statusCode).toBe(404);
+    expect(res.json()).toMatchObject({ error: { code: "not_found" } });
+  }
+
+  // Direct revoke endpoints would bypass the freshness requirement.
+  for (const path of ["/api/auth/revoke-sessions", "/api/auth/revoke-other-sessions/"]) {
+    const res = await app.inject({ method: "POST", url: path, headers: { origin: ORIGIN }, payload: {} });
+    expect(res.statusCode).toBe(404);
+  }
 
   for (const path of ["/api/auth/delete-user", "/api/auth/two-factor/view-backup-codes"]) {
     const res = await app.inject({ method: "POST", url: path, headers: { origin: ORIGIN }, payload: {} });
     expect(res.statusCode).toBeGreaterThanOrEqual(400);
+    expect(res.statusCode).toBeLessThan(500);
   }
+
+  // Anonymous access to every private endpoint is exactly 401.
+  for (const url of ["/api/me", "/api/me/sessions"]) {
+    expect((await app.inject({ method: "GET", url, headers: { origin: ORIGIN } })).statusCode).toBe(401);
+  }
+  expect(
+    (await app.inject({ method: "POST", url: "/api/me/sessions/revoke-others", headers: { origin: ORIGIN } }))
+      .statusCode,
+  ).toBe(401);
 });
+
+test("a backup code works exactly once", async () => {
+  const login = await app.inject({
+    method: "POST",
+    url: "/api/auth/sign-in/email",
+    headers: { origin: ORIGIN },
+    payload: { email: EMAIL, password: NEW_PASSWORD },
+  });
+  expect(login.statusCode).toBe(200);
+  const jar = mergeCookies("", login);
+
+  const code = backupCodes[0]!;
+  const first = await app.inject({
+    method: "POST",
+    url: "/api/auth/two-factor/verify-backup-code",
+    headers: { origin: ORIGIN, cookie: jar },
+    payload: { code },
+  });
+  expect(first.statusCode).toBe(200);
+
+  // Second sign-in, same code: must be refused.
+  const login2 = await app.inject({
+    method: "POST",
+    url: "/api/auth/sign-in/email",
+    headers: { origin: ORIGIN },
+    payload: { email: EMAIL, password: NEW_PASSWORD },
+  });
+  const jar2 = mergeCookies("", login2);
+  const reuse = await app.inject({
+    method: "POST",
+    url: "/api/auth/two-factor/verify-backup-code",
+    headers: { origin: ORIGIN, cookie: jar2 },
+    payload: { code },
+  });
+  expect(reuse.statusCode).toBeGreaterThanOrEqual(400);
+  expect(reuse.statusCode).toBeLessThan(500);
+}, 120_000);
+
+test("another account never sees the first account's data", async () => {
+  const signUp = await app.inject({
+    method: "POST",
+    url: "/api/auth/sign-up/email",
+    headers: { origin: ORIGIN },
+    payload: { email: OTHER_EMAIL, password: PASSWORD, name: "Other User" },
+  });
+  expect(signUp.statusCode).toBe(200);
+
+  const verifyUrl = await lastMailLinkTo(OTHER_EMAIL);
+  await app.inject({
+    method: "GET",
+    url: verifyUrl.replace(/^https?:\/\/[^/]+/, ""),
+    headers: { origin: ORIGIN },
+  });
+
+  const login = await app.inject({
+    method: "POST",
+    url: "/api/auth/sign-in/email",
+    headers: { origin: ORIGIN },
+    payload: { email: OTHER_EMAIL, password: PASSWORD },
+  });
+  expect(login.statusCode).toBe(200);
+  const jar = mergeCookies("", login);
+
+  const me = await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jar } });
+  expect(me.statusCode).toBe(200);
+  expect(me.json()).toMatchObject({ email: OTHER_EMAIL });
+  expect(me.body).not.toContain(EMAIL);
+
+  const sessions = await app.inject({
+    method: "GET",
+    url: "/api/me/sessions",
+    headers: { origin: ORIGIN, cookie: jar },
+  });
+  expect(sessions.statusCode).toBe(200);
+  expect((sessions.json() as { sessions: unknown[] }).sessions).toHaveLength(1);
+  expect(sessions.body).not.toContain(EMAIL);
+}, 120_000);
