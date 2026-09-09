@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "kit": { "version": "0.1.0-dev", "baseCommit": "ccd6ac2d706327e348f34ad0bb9041d0fbb4d2a1" },
+  "targets": ["web"],
+  "modules": ["accounts", "security", "preferences"],
+  "partialModules": ["account-export"],
+  "plannedModules": ["data-lifecycle", "operations", "files", "sharing", "admin", "provenance", "native", "organizations", "ai", "research"],
+  "theme": "neutral-white",
+  "t13Telemetry": false,
+  "verification": "see-docs-status",
+  "githubActions": "manual-only-no-workflows-installed"
+}
