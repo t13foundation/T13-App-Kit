@@ -15,11 +15,11 @@ const MAX_BODY_BYTES = 64 * 1024;
 
 async function requireVerifiedSession(request: FastifyRequest) {
   const session = await auth().api.getSession({ headers: fromNodeHeaders(request.headers) });
-  if (!session) return { error: { status: 401, code: "unauthenticated" } } as const;
+  if (!session) return { session: null, error: { status: 401, code: "unauthenticated" } };
   if (!session.user.emailVerified) {
-    return { error: { status: 403, code: "email_not_verified" } } as const;
+    return { session: null, error: { status: 403, code: "email_not_verified" } };
   }
-  return { session } as const;
+  return { session, error: null };
 }
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -96,10 +96,10 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   app.get("/api/me", async (request, reply) => {
     const result = await requireVerifiedSession(request);
-    if ("error" in result) {
+    if (result.error) {
       return reply.status(result.error.status).send({ error: { code: result.error.code, message: result.error.code } });
     }
-    const u = result.session.user as typeof result.session.user & {
+    const u = result.session.user as typeof result.session!.user & {
       locale?: string;
       timezone?: string;
       twoFactorEnabled?: boolean | null;
@@ -118,7 +118,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   app.put("/api/me/preferences", async (request, reply) => {
     const result = await requireVerifiedSession(request);
-    if ("error" in result) {
+    if (result.error) {
       return reply.status(result.error.status).send({ error: { code: result.error.code, message: result.error.code } });
     }
     const parsed = preferencesSchema.safeParse(request.body);
@@ -128,20 +128,20 @@ export async function buildApp(): Promise<FastifyInstance> {
     await db()
       .update(userTable)
       .set({ locale: parsed.data.locale, timezone: parsed.data.timezone, updatedAt: new Date() })
-      .where(eq(userTable.id, result.session.user.id));
+      .where(eq(userTable.id, result.session!.user.id));
     return parsed.data;
   });
 
   app.get("/api/me/sessions", async (request, reply) => {
     const result = await requireVerifiedSession(request);
-    if ("error" in result) {
+    if (result.error) {
       return reply.status(result.error.status).send({ error: { code: result.error.code, message: result.error.code } });
     }
     const list = await auth().api.listSessions({ headers: fromNodeHeaders(request.headers) });
     return {
       sessions: list.map((entry) => ({
         id: entry.id,
-        current: entry.token === result.session.session.token,
+        current: entry.token === result.session!.session.token,
         createdAt: new Date(entry.createdAt).toISOString(),
         expiresAt: new Date(entry.expiresAt).toISOString(),
         client: clientLabel(entry.userAgent),
@@ -151,7 +151,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   app.post("/api/me/sessions/revoke-others", async (request, reply) => {
     const result = await requireVerifiedSession(request);
-    if ("error" in result) {
+    if (result.error) {
       return reply.status(result.error.status).send({ error: { code: result.error.code, message: result.error.code } });
     }
     await auth().api.revokeOtherSessions({ headers: fromNodeHeaders(request.headers) });
