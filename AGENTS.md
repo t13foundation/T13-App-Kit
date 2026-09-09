@@ -9,16 +9,17 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-## T13 App Kit rules
+## App Kit rules
 
-- Use the existing modules and the single canonical UI directory
-  `src/components/kit` first; do not start a parallel component set.
-- White label: white `#FFFFFF`, strictly neutral grays, no brand colors, logo
-  or marketing content. The product name comes from `src/app.config.ts`.
-- No installer, no wizard, no CLI, no dynamic module engine.
-- No secrets in the repository or in the client bundle; `.env*` stays ignored.
-- Never delete or rewrite applied migrations, and never rewrite Git history.
-- Real implementations only: a mock is not an integration test, and a feature
-  without server support is shown as pending, never as a working button.
-- Run `node scripts/check-source-integrity.mjs`, the web build and both
-  typechecks before reporting work as done.
+- Implement directly in GitHub. Do not delegate code generation to Lovable.
+- Reuse `src/components/kit`, real MIT sources and Better Auth. No parallel UI library or custom authentication.
+- White background, neutral grays, configurable product name. No required T13 branding.
+- Preserve both sides when reconciling branches. No force push, destructive reset or migration rewrite.
+- No installer, wizard, custom CLI or dynamic module engine.
+- Every private endpoint checks the session and verified account. Sensitive changes require fresh authentication.
+- No secrets, raw session tokens, passwords or recovery codes in logs, repository, browser storage or exports.
+- Keep web/API dependencies separate. Ignore local environment files; do not restore historical `.env.test` files.
+- GitHub Minutes are limited. Main CI remains manual-only; no test on every commit and no broad matrices.
+- Run the minimum relevant checks at the end of a coherent increment. Preserve existing tests and their database guards.
+- Report exact results: syntax, full typecheck, build and integration are different checks. Never reuse an old pass for new code.
+- No production deployment, publication, visibility change, paid cloud enablement or changes to Site Kit without a separate request.

@@ -16,15 +16,47 @@
       "status": "enabled",
       "card": "docs/modules/security.md"
     },
-    "profile-editing": { "status": "planned" },
-    "account-deletion": { "status": "planned" },
-    "data-export": { "status": "planned" },
-    "files": { "status": "planned" },
-    "sharing": { "status": "planned" },
-    "admin": { "status": "planned" },
-    "organizations": { "status": "planned" },
-    "billing": { "status": "planned" },
-    "ai": { "status": "planned" },
-    "mobile": { "status": "planned" }
-  }
+    "profile-editing": {
+      "status": "enabled",
+      "scope": "name-only"
+    },
+    "account-export": {
+      "status": "enabled",
+      "scope": "caller-profile-and-preferences-only"
+    },
+    "email-change": {
+      "status": "planned"
+    },
+    "account-deletion": {
+      "status": "planned"
+    },
+    "data-export": {
+      "status": "planned"
+    },
+    "full-i18n": {
+      "status": "planned"
+    },
+    "files": {
+      "status": "planned"
+    },
+    "sharing": {
+      "status": "planned"
+    },
+    "admin": {
+      "status": "planned"
+    },
+    "organizations": {
+      "status": "planned"
+    },
+    "billing": {
+      "status": "planned"
+    },
+    "ai": {
+      "status": "planned"
+    },
+    "mobile": {
+      "status": "planned"
+    }
+  },
+  "verification": "docs/status.md"
 }

@@ -1,76 +1,63 @@
-# Status — increment 1 (accounts core)
+# Status — reconciled accounts increment
 
-Date: 2026-09-09. Scope of this increment: white-label web shell, MIT UI
-catalog, and the full core account path with a real Fastify/PostgreSQL/
-Drizzle/Better Auth backend. This is not a 1.0 release.
+Date: 2026-09-09. This records the merged source, not a production release.
+Main and `codex/app-kit-core` are reconciled as described in
+`reference/merge-2026-09-09.md`. No migration history, original integration
+suite, library license or later main-only fixes were discarded.
 
-## Done and verified in this sandbox
+## Implemented in this increment
 
-Commands were run without pipes that hide exit codes.
+- One white-label account/settings screen on `/account`, with the existing
+  component catalog on `/catalog` and a small honest start/status screen.
+- Real name editing and preferences persisted for the authenticated owner.
+- Password change, TOTP setup/confirmation, recovery codes, real sign-out,
+  safe session listing and individual/other-session revocation.
+- Account-only export: caller profile and preferences, not materials from
+  future modules, credentials, sessions or another person's data.
+- Official Better Auth client and server, matching existing locked versions.
+- Server-enforced freshness, exact auth HTTP allowlist, trusted peer address
+  resolution, origin checks and forced other-session revocation on password
+  change. PostgreSQL readiness remains real, not a hard-coded healthy status.
+- Fixed-target proxy, bounded streaming request body, abort handling, separate
+  Set-Cookie values, no-store responses and safe errors.
+- Credential forms submit by POST. Missing backend or rejected request cannot
+  produce a successful save/sign-out message.
+- Existing local PostgreSQL/Mailpit instructions and test guards retained.
 
-| Check | Command | Result |
+## Verification performed on these merged files
+
+Local environment: Node 22.16.0, TypeScript 5.8.3.
+
+| Check | Result | Scope |
 | --- | --- | --- |
-| Source integrity | `node scripts/check-source-integrity.mjs` | exit 0 |
-| Web build | `bun run build` | exit 0 |
-| Web typecheck | `bunx tsgo --noEmit -p tsconfig.json` | exit 0 |
-| Server typecheck | `cd server && bun run typecheck` | exit 0 |
-| Unit tests | `cd server && bunx vitest run tests/unit` | 8/8 passed, exit 0 |
-| Integration tests | `cd server && bunx vitest run tests/integration` | 5/5 passed, exit 0 |
+| `node --experimental-strip-types --test tests/merge-regression.test.mjs` | 6 passed, 0 failed; exit 0 | Real pure policy/proxy code, stub upstream transport; no database or browser |
+| Installed `tsc --noEmit` with strict/indexed-access options on `shared/security-policy.ts`, `src/lib/api-proxy.server.ts`, `src/lib/api.ts` | exit 0 | Three dependency-free modules, not the complete application |
+| TypeScript `transpileModule` on 17 authored TS/TSX files | 0 syntax diagnostics | Syntax/transpilation only, not dependency-resolved type checking |
 
-The integration run used a real PostgreSQL 17 (`127.0.0.1:5433`, database
-`appkit_test`) and a real Mailpit SMTP server (`127.0.0.1:1025`) started
-locally in the sandbox. No mock replaced either service. Covered:
+The current container cannot resolve package hosts and has no project
+node_modules, PostgreSQL, Docker or Bun. A full web build, full typechecks and
+PostgreSQL/SMTP tests were therefore not run locally. A limited remote final
+check, if executed, must be recorded separately with its run ID and result.
+Never convert a missing result into a pass.
 
-- sign-up, private access refused before verification, verification mail read
-  from Mailpit, confirmation, login, `/me`, preferences persisted in the
-  database, TOTP MFA enrolment and confirmation, logout, login with the second
-  factor, session list, revoking other sessions and the revoked session losing
-  access;
-- password reset by email, which still requires the second factor;
-- a backup code working exactly once;
-- another account never seeing the first account's data;
-- exact negative statuses: 401 anonymous, 403 foreign origin, 403 mutation
-  without `Origin`, 404 on `/api/auth/list-sessions`, `/token`, the revoke
-  paths and their trailing-slash variants;
-- session list responses contain no token, IP address or raw user agent.
+Before this merge, main at `69ce1b7` contained a Lovable-authored report of a
+successful web build, typechecks, 8 unit tests, 5 integration tests and selected
+browser checks. Those are historical results for that earlier snapshot; they
+are NOT a verification of the newly merged code.
 
-### Browser check (Chromium, desktop 1280 and mobile 390)
+## Configuration and remaining boundaries
 
-- `/`, `/catalog`, `/sign-in` render, titles are set, no console errors on
-  desktop.
-- With no backend configured, signing in shows a readable error ("Backend nie
-  jest skonfigurowany…") after a real 503 from the proxy. There is no fake
-  success anywhere.
-- Auth forms use `method="post"`, so a submit before hydration can never put
-  the password into the URL. (This was found and fixed during the check.)
-- Known cosmetic issue: React Aria inputs log a hydration attribute mismatch
-  (`caret-color`) on first paint. No functional impact; not yet fixed.
+The hosted preview still requires a running API/PostgreSQL/SMTP and a private
+`API_INTERNAL_URL`. Pushing source does not configure or deploy those services.
+Without a backend, the catalog remains available and account requests fail
+explicitly. Real SMTP deliverability and the actual hosting reverse-proxy
+configuration remain unverified here.
 
-## Requires configuration (works, but needs local/production values)
+Full PL/EN UI, verified email changes, account deletion, consents/full data
+lifecycle, files, sharing, organizations, billing, AI, research and native
+mobile remain separate scope. Locale currently controls formatting, not a
+fully translated account interface. Default shadcn leftovers remain unused by
+new screens; no claim of dependency pruning or full accessibility audit is made.
 
-- `server/.env` — `BETTER_AUTH_SECRET`, `DATABASE_URL`, SMTP and origins. The
-  API refuses to start with a placeholder, malformed origin, or non-HTTPS
-  public origin in production.
-- `API_INTERNAL_URL` for the web process; without it the app honestly reports
-  that the backend is unavailable.
-- `server/.env.test` (git-ignored) plus `ALLOW_TEST_DATABASE_RESET=true` and a
-  local `appkit_test` database for the integration suite.
-- `compose.yaml` provides local PostgreSQL and Mailpit; it was not executed in
-  this sandbox (Docker is unavailable) — the equivalent services were started
-  as plain local processes instead.
-
-## Pending (not implemented, deliberately no placeholder UI)
-
-- Editing profile name and email address; account deletion; data export and
-  consents. The corresponding library shortcuts are blocked server-side.
-- Full PL/EN interface: screens are Polish only today. Locale is stored per
-  user, but no translation layer exists yet, so this is **not** PL/EN.
-- Files, sharing, admin, provenance, organizations, billing, AI, research, and
-  the Expo/React Native client.
-- No RLS, no multi-tenant model, no production deployment, nothing published.
-
-## Not verified
-
-- Behaviour behind a real reverse proxy with `TRUSTED_PROXIES` set.
-- Deliverability with a real SMTP provider (only Mailpit was used).
-- Production build of the API on a real host; only typecheck and tests ran.
+No production deployment, publication or visibility change. Site Kit/Sitecase
+were not changed. Main CI remains manual-only, with no push/PR triggers.

@@ -1,52 +1,41 @@
 # Module card: accounts (core)
 
-Status: enabled. Complete web + API account path built on Better Auth 1.7.3.
+Implementation: web + API on Better Auth 1.7.3. Verification is recorded separately in `docs/status.md`.
 
-## What works
+## Included
 
-- Sign-up with email verification (verification mail is sent on sign-up).
-- Unverified accounts cannot sign in and cannot reach any private endpoint.
-- Sign-in, sign-out, resend verification.
-- Forgotten password and reset from the emailed link. All sessions are revoked
-  on reset, so MFA can never be skipped through a reset.
-- TOTP MFA with explicit confirmation and single-use backup codes.
-- Second-factor screen during sign-in; `trustDevice` is refused server-side.
-- Session list (device label only) and "revoke other sessions", which requires a
-  session authenticated within the last 5 minutes.
-- Language (pl/en) and time zone stored in the database, not in the browser.
+Registration with verified email; sign-in/out; resend verification; emailed password reset;
+TOTP enrollment/confirmation and single-use recovery codes; profile-name and preference persistence;
+password change with other-session revocation; safe session listing, individual and other-session revocation;
+account-only export of the caller's profile and preferences.
 
-## Pending (not implemented, no fake UI)
+The official client remains in `src/lib/auth-client.ts`. `src/lib/account.ts` wraps it and the
+custom endpoints; authentication is not a hand-written protocol. Sensitive endpoints require a
+session created within five minutes. The backend refuses trustDevice and blocks unlisted raw
+Better Auth endpoints, including raw session lists and account-lifecycle shortcuts.
 
-- Editing profile name/email, account deletion, data export, consents, mobile
-  client. The library shortcuts (`/delete-user`, `/change-email`) are disabled
-  because there is no data lifecycle behind them yet.
+## Files and dependencies
 
-## Files
+- `src/routes/account.tsx`, `src/components/kit/blocks/account-settings.tsx` and the existing authentication screens.
+- `src/lib/{account,api,auth-client}.ts`, `src/lib/api-proxy.server.ts`, `src/routes/api.$.ts`.
+- `shared/contracts.ts`, `shared/security-policy.ts` (browser-safe contracts/pure rules).
+- `server/src/{app,auth,env,main}.ts`, database schema and unchanged `server/drizzle` history, SMTP/templates.
+- Existing Better Auth/Drizzle/Fastify/PostgreSQL/React Email/Zod dependencies; no added package required for the merge.
 
-- `server/src/auth.ts` — Better Auth configuration (2FA, rate limits, cookies)
-- `server/src/app.ts` — Fastify app, `/api/me*`, origin checks, auth catch-all
-- `server/src/db/schema.ts`, `server/drizzle/*` — schema and migrations
-- `server/src/mail/*` — React Email templates and SMTP transport
-- `shared/contracts.ts` — request/response contracts (no secrets, no Node deps)
-- `src/routes/sign-in|sign-up|verify-email|forgot-password|reset-password|two-factor|account.tsx`
-- `src/lib/auth-client.ts`, `src/lib/account.ts`, `src/lib/api.ts`
-- `src/routes/api.$.ts` — narrow same-origin proxy to one fixed backend
+## Configuration and tests
 
-## Dependencies
+Use ignored `server/.env` plus the server-only web variable API_INTERNAL_URL; see `docs/start.md`.
+Tests: `tests/core-boundary.test.mjs`, `tests/merge-regression.test.mjs`, existing server unit/account
+integration tests and `server/tests/integration/account-settings.test.ts`.
 
-`better-auth`, `@better-auth/drizzle-adapter`, `drizzle-orm`, `pg`, `fastify`,
-`@fastify/cors`, `@fastify/rate-limit`, `nodemailer`, `@react-email/*`, `zod`.
+## Boundaries
 
-## Configuration
+Name editing is implemented; email-change verification, account deletion, consents and full
+application-data export are not. Locale currently controls regional formats; the account screens
+are Polish, not fully translated. Mobile, organizations, files and other modules are separate scope.
 
-`server/.env` (see `server/.env.example`) and `API_INTERNAL_URL` for the web app.
+## Remove / restore
 
-## Tests
-
-`server/tests/unit/env.test.ts`, `server/tests/integration/accounts.test.ts`.
-
-## Removing / restoring
-
-Delete the route files above and the `/api/me*` handlers; keep the database and
-applied migrations untouched. Restore by checking the files back out of a
-previous version — no data has to be dropped in either direction.
+Detach account screens, helpers and API handlers together, including links from the shell and
+catalog. Do not delete the database or applied migrations. Restore compatible versions from the
+repository, reconcile local changes, regenerate routes and perform the relevant end-of-change checks.

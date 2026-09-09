@@ -1,46 +1,29 @@
-/*
- * White-label theme override.
- *
- * The upstream Untitled UI token file (../tokens/theme.css) ships a violet
- * brand ramp, and Tailwind's default `gray` ramp is blue-tinted. This kit is
- * white label, so both are remapped onto a strictly neutral ramp where every
- * step has R = G = B, on a pure white page background.
- *
- * Nothing in tokens/theme.css is modified, which keeps future upstream syncs a
- * straight file copy. To re-brand an application, override the same variables
- * in the app stylesheet after this file is imported.
- */
-
+/* Product overrides only; the original MIT token file remains unchanged. */
 @theme {
-    /* Strictly neutral ramp: R = G = B at every step. */
-    --color-gray-25: rgb(252 252 252);
-    --color-gray-50: rgb(250 250 250);
-    --color-gray-100: rgb(245 245 245);
-    --color-gray-200: rgb(229 229 229);
-    --color-gray-300: rgb(212 212 212);
-    --color-gray-400: rgb(163 163 163);
-    --color-gray-500: rgb(115 115 115);
-    --color-gray-600: rgb(82 82 82);
-    --color-gray-700: rgb(64 64 64);
-    --color-gray-800: rgb(38 38 38);
-    --color-gray-900: rgb(23 23 23);
-    --color-gray-950: rgb(10 10 10);
-
-    /* Brand steps follow the same neutral ramp: no accent color anywhere. */
-    --color-brand-25: rgb(252 252 252);
-    --color-brand-50: rgb(250 250 250);
-    --color-brand-100: rgb(245 245 245);
-    --color-brand-200: rgb(229 229 229);
-    --color-brand-300: rgb(212 212 212);
-    --color-brand-400: rgb(163 163 163);
-    --color-brand-500: rgb(115 115 115);
-    --color-brand-600: rgb(64 64 64);
-    --color-brand-700: rgb(38 38 38);
-    --color-brand-800: rgb(23 23 23);
-    --color-brand-900: rgb(17 17 17);
-    --color-brand-950: rgb(10 10 10);
-
-    /* Page background stays pure white. */
-    --color-bg-primary: rgb(255 255 255);
-    --color-bg-secondary: rgb(250 250 250);
+  --color-gray-25: #fcfcfc;
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
+  --color-gray-950: #0a0a0a;
+  --color-brand-25: #fcfcfc;
+  --color-brand-50: #fafafa;
+  --color-brand-100: #f5f5f5;
+  --color-brand-200: #e5e5e5;
+  --color-brand-300: #d4d4d4;
+  --color-brand-400: #a3a3a3;
+  --color-brand-500: #737373;
+  --color-brand-600: #404040;
+  --color-brand-700: #262626;
+  --color-brand-800: #171717;
+  --color-brand-900: #0a0a0a;
+  --color-brand-950: #050505;
+  --color-bg-primary: #fff;
+  --color-bg-secondary: #fafafa;
 }

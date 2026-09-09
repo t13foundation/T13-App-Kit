@@ -1,58 +1,28 @@
 # T13 App Kit
 
-Starter kit: a white-label React web shell (TanStack Start) plus a separate
-Node/Fastify API with PostgreSQL, Drizzle and Better Auth.
+White-label React/TypeScript starter with a separate Fastify, Better Auth, PostgreSQL and Drizzle API.
+Current version: `0.1.0-dev`. This is the accounts-core increment, not the complete App Kit 1.0.
 
-"T13 App Kit" is the name of the kit and appears in documentation only. The
-product name shown in the interface is configured in `src/app.config.ts`
-(default: `App`). The interface is white (#FFFFFF) with a strictly neutral gray
-ramp — no brand colors, no logo, no marketing pages.
+The product name comes from `src/app.config.ts`. The interface uses a white background,
+neutral grays and real Untitled UI MIT primitives in `src/components/kit`.
+The upstream license and source version remain in `third-party/untitledui-react`.
 
-## Layout
+## Included
 
-```
-src/          web app (TanStack Start), UI catalog in src/components/kit
-shared/       contracts and pure validation shared by web and API
-server/       Node + Fastify + Drizzle + Better Auth (own package.json)
-third-party/  vendored MIT sources and their license/provenance
-docs/         start guide, status, module cards
-```
+- Registration, verified email, sign-in/out, password recovery/reset and TOTP with recovery codes.
+- `/account`: profile name, regional preferences, password, MFA, individual/other-session revocation and account-only JSON export.
+- `/catalog`: component preview without a backend. Missing configuration is a real error, not a simulated account.
+- Official Better Auth client, fixed-target same-origin API proxy, server-side owner/origin/freshness checks and no-store responses.
+- Preserved migration history, local PostgreSQL/Mailpit setup and guarded integration tests.
 
-Web and API are started separately. The root `dev`/`build` scripts only ever
-run the web app; it builds without a database, mail server or running API.
+Read `docs/start.md` to run web and API separately. `docs/status.md` records the actual verification
+of the merged code. Module boundaries are documented in `docs/modules`.
 
-## Web
+## Development
 
-```sh
-bun install
-bun run dev          # http://localhost:8080
-bun run build
-```
+Code is maintained directly in GitHub and synchronizes to the connected Lovable project.
+There is no installer, custom CLI, mandatory T13 cloud service or automatic production deployment.
+GitHub Actions on main is manual-only. Keep checks small and run them at the end of a change.
 
-Without `API_INTERNAL_URL` the web app shows an explicit "backend not
-configured" state. Nothing is faked: sign-in forms report the real error
-instead of a fake success. The component catalog at `/catalog` works without a
-backend and without an account.
-
-## API
-
-```sh
-cd server
-bun install
-cp .env.example .env        # fill in locally generated values
-bun run db:migrate
-bun run dev                 # http://127.0.0.1:3001
-```
-
-Local PostgreSQL and Mailpit:
-
-```sh
-docker compose -f compose.yaml up -d
-```
-
-Connect the two by setting `API_INTERNAL_URL=http://127.0.0.1:3001` for the web
-process. The web app proxies `/api/*` to that single fixed address; no address
-is ever accepted from the client.
-
-See `docs/start.md` for the full local walkthrough and `docs/status.md` for what
-is implemented, what is verified and what is still pending.
+Complete translations, verified email changes, account deletion, full application-data lifecycle,
+files, organizations and the native mobile client are later scope; none is implied by this increment.

@@ -1,48 +1,41 @@
 name: CI (manual)
 
-# GitHub Minutes are restricted. Prefer local checks at the end of a change.
-# This workflow never runs on push or pull_request; dispatch it explicitly only.
+# GitHub Minutes are restricted. Never run on push or pull_request.
 on:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 concurrency:
   group: app-kit-manual-checks
   cancel-in-progress: true
-
 jobs:
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
-      - name: Source integrity
-        run: node scripts/check-source-integrity.mjs
-
+      - name: Source integrity and boundary tests
+        run: |
+          node scripts/check-source-integrity.mjs
+          node --experimental-strip-types --test tests/*.test.mjs
       - name: Install web dependencies
         run: bun install --frozen-lockfile
-
       - name: Web build
         run: bun run build
-
-      - name: Web typecheck
-        run: bunx tsgo --noEmit -p tsconfig.json
-
+      - name: Web typecheck (installed TypeScript)
+        run: ./node_modules/.bin/tsc --noEmit -p tsconfig.json
       - name: Install server dependencies
         working-directory: server
         run: bun install --frozen-lockfile
-
       - name: Server typecheck
         working-directory: server
         run: bun run typecheck
-
       - name: Server unit tests
         working-directory: server
-        run: bunx vitest run tests/unit
+        run: ./node_modules/.bin/vitest run tests/unit
