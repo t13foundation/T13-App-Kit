@@ -11,15 +11,17 @@
 
 ## App Kit rules
 
-- Implement directly in GitHub. Do not delegate code generation to Lovable.
-- Reuse `src/components/kit`, real MIT sources and Better Auth. No parallel UI library or custom authentication.
-- White background, neutral grays, configurable product name. No required T13 branding.
-- Preserve both sides when reconciling branches. No force push, destructive reset or migration rewrite.
-- No installer, wizard, custom CLI or dynamic module engine.
-- Every private endpoint checks the session and verified account. Sensitive changes require fresh authentication.
-- No secrets, raw session tokens, passwords or recovery codes in logs, repository, browser storage or exports.
-- Keep web/API dependencies separate. Ignore local environment files; do not restore historical `.env.test` files.
-- GitHub Minutes are limited. Main CI remains manual-only; no test on every commit and no broad matrices.
-- Run the minimum relevant checks at the end of a coherent increment. Preserve existing tests and their database guards.
-- Report exact results: syntax, full typecheck, build and integration are different checks. Never reuse an old pass for new code.
-- No production deployment, publication, visibility change, paid cloud enablement or changes to Site Kit without a separate request.
+- GitHub Issues and native dependencies are the task/status source. Start with the current issue and [accepted scope](https://github.com/t13foundation/T13-App-Kit/issues/2), then [Polish specification](docs/specyfikacja.md) and [Supabase contract](docs/supabase.md).
+- Implement directly in GitHub, never by delegating generation to Lovable. Preserve history and unique work; no force push, destructive reset or migration rewrite.
+- Accepted stack: TanStack Start, React, Supabase Auth/PostgreSQL/Storage, Cloudflare. Use existing MIT Untitled components in `src/components/kit`; no parallel UI library or custom authentication.
+- The first slice lives at `/notes`. Legacy Better Auth/Fastify/Drizzle code and routes stay isolated until replacement acceptance. Legacy docs describe that old path, not the accepted target.
+- Keep white/neutral configurable branding. No installer, custom CLI, dynamic module engine or unrelated product features.
+- All private data requires database RLS and a verified account. Do not trust user metadata for authorization. Sensitive operations need fresh/live authorization in their own later slice.
+- This first Supabase client persists provider-managed sessions in browser storage. It does NOT promise HttpOnly-only tokens or immediate JWT revocation. Never copy tokens into app state stores, logs, files, exports or telemetry. Never expose secret/service_role keys.
+- Prefer direct public API calls governed by RLS; do not add privileged-key endpoints to bypass policies. Do not share authenticated clients or user data across SSR requests.
+- Pin runtime/packages and generate real lockfiles, migrations, database types and route trees. Never fabricate generated outputs or call a hand-authored schema an applied migration.
+- Keep legacy web/API dependencies separated; ignore local environment files and preserve useful security tests. Retire conflicting lockfiles only with a verified replacement.
+- GitHub CI remains manual-only. Run minimum relevant checks at the end; no push/PR triggers, broad matrices or surprise GitHub Minutes.
+- Report syntax, focused tests, full typecheck, build, API and browser evidence separately. Never substitute mocks/static checks for actual RLS or reuse old passes.
+- WBS-APP1-01 needs a demonstrated first slice and Marek's GO before later hardening. Keep incomplete work draft/open; no release tag before acceptance.
+- No production deployment, publication, visibility changes, paid activation or Site Kit writes without a separate request.

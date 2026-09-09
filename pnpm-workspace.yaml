@@ -1,0 +1,3 @@
+packages:
+  - '.'
+# server/ stays an isolated legacy rollback target until replacement acceptance.
