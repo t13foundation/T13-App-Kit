@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cx } from "@/components/kit/utils/cx";
 
-type AlertTone = "info" | "error" | "success";
+export type AlertTone = "info" | "error" | "success";
 const styles: Record<AlertTone, string> = {
   info: "border-gray-200 bg-gray-50 text-gray-700",
   error: "border-gray-300 bg-gray-100 text-gray-900",
