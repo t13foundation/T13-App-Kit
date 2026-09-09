@@ -28,7 +28,7 @@ const STRIPPED = new Set([
 ]);
 
 function backendUrl(): string | null {
-  const raw = process.env.API_INTERNAL_URL;
+  const raw = process.env['API_INTERNAL_URL'];
   if (!raw) return null;
   try {
     const url = new URL(raw);
