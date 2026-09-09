@@ -49,6 +49,7 @@ export const sessionSummarySchema = z.object({
 export type SessionSummary = z.infer<typeof sessionSummarySchema>;
 
 export const sessionListSchema = z.object({ sessions: z.array(sessionSummarySchema) });
+export type SessionList = z.infer<typeof sessionListSchema>;
 
 export const apiErrorSchema = z.object({
   error: z.object({

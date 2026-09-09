@@ -4,14 +4,14 @@ import { twoFactor } from "better-auth/plugins";
 
 import { db } from "./db/client.ts";
 import { schema } from "./db/schema.ts";
-import { env } from "./env.ts";
+import { env, usesHttps } from "./env.ts";
 import { sendResetPasswordMail, sendVerificationMail } from "./mail/send.ts";
 
 export const AUTH_BASE_PATH = "/api/auth";
 
 export function createAuth() {
   const cfg = env();
-  const isProd = cfg.NODE_ENV === "production";
+  const secure = usesHttps(cfg);
 
   return betterAuth({
     appName: cfg.APP_NAME,
@@ -77,13 +77,13 @@ export function createAuth() {
     },
 
     advanced: {
-      useSecureCookies: isProd,
+      useSecureCookies: secure,
       disableCSRFCheck: false,
       disableOriginCheck: false,
       defaultCookieAttributes: {
         httpOnly: true,
         sameSite: "lax",
-        secure: isProd,
+        secure,
         path: "/",
       },
     },
@@ -91,6 +91,8 @@ export function createAuth() {
     // Library routes that would bypass our rules are not exposed.
     disabledPaths: [
       "/sign-in/social",
+      "/list-sessions",
+      "/token",
       "/sign-in/username",
       "/sign-in/phone-number",
       "/delete-user",

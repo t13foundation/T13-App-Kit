@@ -2,10 +2,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Alert, AuthCard, Button, Input } from "@/components/kit";
-import { signUp } from "@/lib/account";
-import { ApiRequestError } from "@/lib/api";
+import { authClient, authErrorMessage, webUrl } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/sign-up")({ component: SignUpPage });
+export const Route = createFileRoute("/sign-up")({
+  head: () => ({
+    meta: [
+      { title: "Rejestracja konta" },
+      { name: "description", content: "Utwórz konto i potwierdź adres e-mail." },
+      { property: "og:title", content: "Rejestracja konta" },
+      { property: "og:description", content: "Utwórz konto i potwierdź adres e-mail." },
+    ],
+  }),
+  component: SignUpPage,
+});
 
 function SignUpPage() {
   const navigate = useNavigate();
@@ -32,15 +41,21 @@ function SignUpPage() {
           const data = new FormData(event.currentTarget);
           setError(null);
           setPending(true);
-          signUp({
-            name: String(data.get("name") ?? ""),
-            email: String(data.get("email") ?? ""),
-            password: String(data.get("password") ?? ""),
-          })
-            .then(() => navigate({ to: "/verify-email" }))
-            .catch((cause: unknown) =>
-              setError(cause instanceof ApiRequestError ? cause.message : "Nie udało się utworzyć konta."),
-            )
+          void authClient
+            .signUp
+            .email({
+              name: String(data.get("name") ?? ""),
+              email: String(data.get("email") ?? ""),
+              password: String(data.get("password") ?? ""),
+              callbackURL: webUrl("/sign-in"),
+            })
+            .then((result) => {
+              if (result.error) {
+                setError(authErrorMessage(result.error));
+                return;
+              }
+              void navigate({ to: "/verify-email" });
+            })
             .finally(() => setPending(false));
         }}
       >

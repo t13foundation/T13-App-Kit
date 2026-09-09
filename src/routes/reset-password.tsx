@@ -2,10 +2,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Alert, AuthCard, Button, Input } from "@/components/kit";
-import { resetPassword } from "@/lib/account";
-import { ApiRequestError } from "@/lib/api";
+import { authClient, authErrorMessage } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/reset-password")({
+  head: () => ({
+    meta: [
+      { title: "Ustawienie nowego hasła" },
+      { name: "description", content: "Ustaw nowe hasło do swojego konta." },
+      { property: "og:title", content: "Ustawienie nowego hasła" },
+      { property: "og:description", content: "Ustaw nowe hasło do swojego konta." },
+    ],
+  }),
   component: ResetPasswordPage,
   validateSearch: (search: Record<string, unknown>) => ({
     token: typeof search["token"] === "string" ? search["token"] : "",
@@ -36,13 +43,16 @@ function ResetPasswordPage() {
             const newPassword = String(new FormData(event.currentTarget).get("password") ?? "");
             setError(null);
             setPending(true);
-            resetPassword({ token, newPassword })
-              .then(() => navigate({ to: "/sign-in" }))
-              .catch((cause: unknown) =>
-                setError(
-                  cause instanceof ApiRequestError ? cause.message : "Nie udało się zmienić hasła.",
-                ),
-              )
+            void authClient
+              .resetPassword({ token, newPassword })
+              .then((result) => {
+                if (result.error) {
+                  setError(authErrorMessage(result.error));
+                  return;
+                }
+                void navigate({ to: "/sign-in" });
+              })
+              .catch(() => setError("Usługa jest niedostępna. Spróbuj ponownie później."))
               .finally(() => setPending(false));
           }}
         >

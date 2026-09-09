@@ -14,7 +14,6 @@ no marketing pages, no image/logo assets, no demo or story files.
 | --- | --- |
 | `utils/cx.ts` | `src/components/kit/utils/cx.ts` |
 | `utils/is-react-component.ts` | `src/components/kit/utils/is-react-component.ts` |
-| `utils/timezones.tsx` | `src/components/kit/utils/timezones.tsx` |
 | `styles/theme.css` | `src/components/kit/tokens/theme.css` |
 | `components/base/buttons/button.tsx` | `src/components/kit/controls/button.tsx` |
 | `components/base/checkbox/checkbox.tsx` | `src/components/kit/controls/checkbox.tsx` |
@@ -27,14 +26,19 @@ no marketing pages, no image/logo assets, no demo or story files.
 | `components/base/select/select-native.tsx` | `src/components/kit/forms/select-native.tsx` |
 | `components/base/form/form.tsx` | `src/components/kit/forms/form.tsx` |
 | `components/base/tooltip/tooltip.tsx` | `src/components/kit/feedback/tooltip.tsx` |
-| `components/base/badges/badges.tsx` | `src/components/kit/feedback/badges.tsx` |
 
 ## Local modifications
 
 1. Import specifiers rewritten from `@/utils/*` and `@/components/base/*`
    to `@/components/kit/*`. No logic changes.
-2. Brand color ramp neutralized in `src/components/kit/themes/neutral.css`
-   (an override layer; `tokens/theme.css` itself is unmodified).
+2. Not vendored after review: `utils/timezones.tsx` (depends on the upstream
+   `select` component, which is not part of this subset) and
+   `components/base/badges/badges.tsx` (unused, and depends on files outside
+   this subset). Neither file is present in this repository.
+3. Brand color ramp neutralized in `src/components/kit/themes/neutral.css`
+   (an override layer; `tokens/theme.css` itself is unmodified). The same
+   override maps Tailwind's blue-tinted `gray` ramp onto a strictly neutral
+   ramp (R = G = B).
 
 Everything under `src/components/kit/{navigation,blocks}` and `index.ts` is
 original code written for this kit on top of the vendored primitives.

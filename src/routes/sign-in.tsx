@@ -2,10 +2,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Alert, AuthCard, Button, Input } from "@/components/kit";
-import { signIn } from "@/lib/account";
-import { ApiRequestError } from "@/lib/api";
+import { authClient, authErrorMessage } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/sign-in")({ component: SignInPage });
+export const Route = createFileRoute("/sign-in")({
+  head: () => ({
+    meta: [
+      { title: "Logowanie" },
+      { name: "description", content: "Zaloguj się do swojego konta." },
+      { property: "og:title", content: "Logowanie" },
+      { property: "og:description", content: "Zaloguj się do swojego konta." },
+    ],
+  }),
+  component: SignInPage,
+});
 
 function SignInPage() {
   const navigate = useNavigate();
@@ -37,18 +46,23 @@ function SignInPage() {
           const data = new FormData(event.currentTarget);
           setError(null);
           setPending(true);
-          signIn({
-            email: String(data.get("email") ?? ""),
-            password: String(data.get("password") ?? ""),
-          })
-            .then((result) =>
-              navigate({ to: result?.twoFactorRedirect ? "/two-factor" : "/account" }),
-            )
-            .catch((cause: unknown) =>
-              setError(
-                cause instanceof ApiRequestError ? cause.message : "Logowanie nie powiodło się.",
-              ),
-            )
+          void authClient
+            .signIn
+            .email({
+              email: String(data.get("email") ?? ""),
+              password: String(data.get("password") ?? ""),
+              // Never remember the device: the second factor is always required.
+              rememberMe: true,
+            })
+            .then((result) => {
+              if (result.error) {
+                setError(authErrorMessage(result.error));
+                return;
+              }
+              const twoFactor = (result.data as { twoFactorRedirect?: boolean } | null)
+                ?.twoFactorRedirect;
+              void navigate({ to: twoFactor ? "/two-factor" : "/account" });
+            })
             .finally(() => setPending(false));
         }}
       >

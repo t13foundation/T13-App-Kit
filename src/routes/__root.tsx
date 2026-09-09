@@ -10,6 +10,8 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { appConfig } from "../app.config";
+import { AppHeader } from "../components/kit/navigation/app-header";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -77,14 +79,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "T13 App Kit" },
-      { name: "description", content: "Minimal starter kit for structured applications." },
-      { name: "author", content: "T13" },
-      { property: "og:title", content: "T13 App Kit" },
-      { property: "og:description", content: "Minimal starter kit for structured applications." },
+      { title: appConfig.name },
+      { name: "description", content: appConfig.description },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@t13" },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [
       {
@@ -102,7 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pl">
       <head>
         <HeadContent />
       </head>
@@ -120,13 +118,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
-        <header className="border-b border-border">
-          <div className="mx-auto flex h-14 max-w-5xl items-center px-4">
-            <Link to="/" className="text-lg font-semibold tracking-tight text-foreground">
-              T13 App Kit
-            </Link>
-          </div>
-        </header>
+        <AppHeader />
         <main className="flex-1">
           <Outlet />
         </main>

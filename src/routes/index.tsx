@@ -1,38 +1,77 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+
+import { Alert, Button, PageSection } from "@/components/kit";
+import { appConfig } from "@/app.config";
+import { getStatus } from "@/lib/account";
+import { ApiRequestError } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "T13 App Kit" },
-      { name: "description", content: "Minimal starter kit for structured applications." },
-      { property: "og:title", content: "T13 App Kit" },
-      { property: "og:description", content: "Minimal starter kit for structured applications." },
+      { title: "Aplikacja — konto i ustawienia" },
+      { name: "description", content: "Konto użytkownika, bezpieczeństwo i ustawienia." },
+      { property: "og:title", content: "Aplikacja — konto i ustawienia" },
+      { property: "og:description", content: "Konto użytkownika, bezpieczeństwo i ustawienia." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,
 });
 
 function Index() {
+  const status = useQuery({ queryKey: ["status"], queryFn: getStatus, retry: false });
+
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          T13 App Kit
-        </h1>
-        <p className="mt-4 text-base text-muted-foreground">
-          Minimal starter for structured applications. Add routes, components, and data as needed.
-        </p>
-        <div className="mt-8">
-          <a
-            href="https://docs.lovable.dev"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Read the docs
-          </a>
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{appConfig.name}</h1>
+      <p className="mt-1 text-sm text-gray-600">{appConfig.description}</p>
+
+      <PageSection title="Stan usługi" description="Rzeczywisty stan połączenia z API.">
+        {status.isLoading ? <p className="text-sm text-gray-600">Sprawdzanie…</p> : null}
+        {status.isSuccess ? (
+          <Alert tone="success" title="API odpowiada">
+            Weryfikacja e-maila: {status.data.features?.emailVerification ? "włączona" : "wyłączona"}.
+            Weryfikacja dwuetapowa: {status.data.features?.twoFactor ? "włączona" : "wyłączona"}.
+          </Alert>
+        ) : null}
+        {status.isError ? (
+          <Alert tone="error" title="Brak backendu">
+            {status.error instanceof ApiRequestError && status.error.code === "api_not_configured"
+              ? "Zmienna API_INTERNAL_URL nie jest ustawiona, więc żadne funkcje konta nie działają. To rzeczywisty stan, nie symulacja."
+              : "API nie odpowiada. Uruchom lokalnie bazę, pocztę i serwer zgodnie z docs/start.md."}
+          </Alert>
+        ) : null}
+      </PageSection>
+
+      <PageSection
+        title="Konto"
+        description="Rejestracja, potwierdzenie adresu, logowanie, hasło, weryfikacja dwuetapowa i sesje."
+      >
+        <div className="flex flex-wrap gap-3">
+          <Link to="/sign-in">
+            <Button>Zaloguj się</Button>
+          </Link>
+          <Link to="/sign-up">
+            <Button color="secondary">Utwórz konto</Button>
+          </Link>
+          <Link to="/account">
+            <Button color="tertiary">Ustawienia konta</Button>
+          </Link>
         </div>
-      </div>
+      </PageSection>
+
+      <PageSection
+        title="Komponenty"
+        description="Neutralny podgląd komponentów interfejsu; działa również bez backendu."
+      >
+        <div>
+          <Link to="/catalog">
+            <Button color="secondary">Otwórz katalog</Button>
+          </Link>
+        </div>
+      </PageSection>
     </div>
   );
 }

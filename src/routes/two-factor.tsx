@@ -2,10 +2,19 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Alert, AuthCard, Button, Input } from "@/components/kit";
-import { verifyBackupCode, verifyTotp } from "@/lib/account";
-import { ApiRequestError } from "@/lib/api";
+import { authClient, authErrorMessage } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/two-factor")({ component: TwoFactorPage });
+export const Route = createFileRoute("/two-factor")({
+  head: () => ({
+    meta: [
+      { title: "Drugi składnik logowania" },
+      { name: "description", content: "Potwierdź logowanie kodem jednorazowym." },
+      { property: "og:title", content: "Drugi składnik logowania" },
+      { property: "og:description", content: "Potwierdź logowanie kodem jednorazowym." },
+    ],
+  }),
+  component: TwoFactorPage,
+});
 
 function TwoFactorPage() {
   const navigate = useNavigate();
@@ -29,11 +38,19 @@ function TwoFactorPage() {
           const code = String(new FormData(event.currentTarget).get("code") ?? "");
           setError(null);
           setPending(true);
-          (useBackup ? verifyBackupCode(code) : verifyTotp(code))
-            .then(() => navigate({ to: "/account" }))
-            .catch((cause: unknown) =>
-              setError(cause instanceof ApiRequestError ? cause.message : "Nieprawidłowy kod."),
-            )
+          // trustDevice is never requested; the server rejects it as well.
+          const request = useBackup
+            ? authClient.twoFactor.verifyBackupCode({ code })
+            : authClient.twoFactor.verifyTotp({ code });
+          void request
+            .then((result) => {
+              if (result.error) {
+                setError(authErrorMessage(result.error));
+                return;
+              }
+              void navigate({ to: "/account" });
+            })
+            .catch(() => setError("Usługa jest niedostępna. Spróbuj ponownie później."))
             .finally(() => setPending(false));
         }}
       >
@@ -43,7 +60,6 @@ function TwoFactorPage() {
           name="code"
           label={useBackup ? "Kod odzyskiwania" : "Kod z aplikacji"}
           autoComplete="one-time-code"
-          inputMode={useBackup ? "text" : "numeric"}
         />
         <Button type="submit" isDisabled={pending} size="lg">
           {pending ? "Sprawdzanie…" : "Potwierdź"}
