@@ -36,6 +36,7 @@ function VerifyEmailPage() {
       ) : null}
       {error ? <Alert tone="error">{error}</Alert> : null}
       <form
+        method="post"
         className="flex flex-col gap-5"
         onSubmit={(event) => {
           event.preventDefault();
