@@ -50,9 +50,9 @@ const SPOOFABLE_IP_HEADERS = new Set([
  * Reads at most `limit` bytes and aborts as soon as the stream exceeds it, so
  * an oversized upload is never buffered in full.
  */
-async function readLimitedBody(request: Request, limit: number): Promise<Uint8Array | null> {
+async function readLimitedBody(request: Request, limit: number): Promise<ArrayBuffer | null> {
   const reader = request.body?.getReader();
-  if (!reader) return new Uint8Array(0);
+  if (!reader) return new ArrayBuffer(0);
   const chunks: Uint8Array[] = [];
   let size = 0;
   for (;;) {
@@ -71,7 +71,7 @@ async function readLimitedBody(request: Request, limit: number): Promise<Uint8Ar
     out.set(chunk, offset);
     offset += chunk.byteLength;
   }
-  return out;
+  return out.buffer;
 }
 
 function backendUrl(): string | null {
@@ -112,7 +112,7 @@ async function proxy({ request }: { request: Request }): Promise<Response> {
     headers.set(key, value);
   });
 
-  let body: Uint8Array | undefined;
+  let body: ArrayBuffer | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
     const limited = await readLimitedBody(request, MAX_BODY_BYTES);
     if (limited === null) {
