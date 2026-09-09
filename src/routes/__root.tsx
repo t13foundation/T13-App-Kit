@@ -77,14 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "T13 App Kit" },
+      { name: "description", content: "Minimal starter kit for structured applications." },
+      { name: "author", content: "T13" },
+      { property: "og:title", content: "T13 App Kit" },
+      { property: "og:description", content: "Minimal starter kit for structured applications." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:site", content: "@t13" },
     ],
     links: [
       {
@@ -119,8 +119,18 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="flex min-h-screen flex-col">
+        <header className="border-b border-border">
+          <div className="mx-auto flex h-14 max-w-5xl items-center px-4">
+            <Link to="/" className="text-lg font-semibold tracking-tight text-foreground">
+              T13 App Kit
+            </Link>
+          </div>
+        </header>
+        <main className="flex-1">
+          <Outlet />
+        </main>
+      </div>
     </QueryClientProvider>
   );
 }

@@ -1,24 +1,38 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "T13 App Kit" },
+      { name: "description", content: "Minimal starter kit for structured applications." },
+      { property: "og:title", content: "T13 App Kit" },
+      { property: "og:description", content: "Minimal starter kit for structured applications." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center px-4">
+      <div className="max-w-md text-center">
+        <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          T13 App Kit
+        </h1>
+        <p className="mt-4 text-base text-muted-foreground">
+          Minimal starter for structured applications. Add routes, components, and data as needed.
+        </p>
+        <div className="mt-8">
+          <a
+            href="https://docs.lovable.dev"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Read the docs
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
