@@ -68,7 +68,7 @@ export function createAuth() {
       customRules: {
         "/sign-in/email": { window: 300, max: 10 },
         "/sign-up/email": { window: 3600, max: 5 },
-        "/forget-password": { window: 3600, max: 5 },
+        "/request-password-reset": { window: 3600, max: 5 },
         "/reset-password": { window: 3600, max: 10 },
         "/send-verification-email": { window: 3600, max: 5 },
         "/two-factor/verify-totp": { window: 300, max: 10 },

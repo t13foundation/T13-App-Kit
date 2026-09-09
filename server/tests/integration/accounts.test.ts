@@ -47,7 +47,9 @@ async function lastMailLinkTo(to: string): Promise<string> {
         Text: string;
         HTML: string;
       };
-      const match = `${body.HTML}\n${body.Text}`.match(/https?:\/\/[^\s"'<>)\]]+/);
+      const match = `${body.HTML}\n${body.Text}`.match(
+        /https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?[^\s"'<>)\]]+/,
+      );
       if (match) {
         await fetch(`${MAILPIT_API}/api/v1/messages`, {
           method: "DELETE",
@@ -240,14 +242,14 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
 test("password reset goes through email and still requires the second factor", async () => {
   const forget = await app.inject({
     method: "POST",
-    url: "/api/auth/forget-password",
+    url: "/api/auth/request-password-reset",
     headers: { origin: ORIGIN },
     payload: { email: EMAIL, redirectTo: "http://localhost:8080/reset-password" },
   });
   expect(forget.statusCode).toBe(200);
 
   const link = await lastMailLinkTo(EMAIL);
-  const token = new URL(link).pathname.split("/").pop() ?? new URL(link).searchParams.get("token") ?? "";
+  const token = new URL(link).searchParams.get("token") ?? "";
   expect(token.length).toBeGreaterThan(10);
 
   const reset = await app.inject({
