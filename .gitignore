@@ -16,9 +16,19 @@ dist-ssr
 .nitro
 *.local
 
-# Wrangler / Cloudflare
-.wrangler/
+# Secrets at every depth; only blank examples belong in source control.
+.env
+.env.*
+!.env.example
+!.env.*.example
 .dev.vars
+.wrangler/
+
+# Test artifacts and local databases
+coverage/
+playwright-report/
+test-results/
+.pgdata/
 
 # Editor directories and files
 .vscode/*

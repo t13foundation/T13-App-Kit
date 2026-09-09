@@ -1,8 +1,14 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+/* Untitled UI (MIT) design tokens + white-label neutral override. */
+@import "./components/kit/tokens/theme.css";
+@import "./components/kit/themes/neutral.css";
+
+@plugin "tailwindcss-react-aria-components";
 
 @custom-variant dark (&:is(.dark *));
+
 
 /*
  * Design system definition.
