@@ -107,15 +107,18 @@ async function proxy({ request }: { request: Request }): Promise<Response> {
 
   const headers = new Headers();
   request.headers.forEach((value, key) => {
-    if (!STRIPPED.has(key.toLowerCase())) headers.set(key, value);
+    const name = key.toLowerCase();
+    if (STRIPPED.has(name) || SPOOFABLE_IP_HEADERS.has(name)) return;
+    headers.set(key, value);
   });
 
-  let body: ArrayBuffer | undefined;
+  let body: Uint8Array | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
-    body = await request.arrayBuffer();
-    if (body.byteLength > MAX_BODY_BYTES) {
+    const limited = await readLimitedBody(request, MAX_BODY_BYTES);
+    if (limited === null) {
       return json(413, { error: { code: "payload_too_large", message: "payload_too_large" } });
     }
+    body = limited;
   }
 
   const controller = new AbortController();
