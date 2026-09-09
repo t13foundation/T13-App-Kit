@@ -21,8 +21,7 @@
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
-    "// exactOptionalPropertyTypes is disabled because the vendored Untitled UI (MIT)
-    // sources are not authored for it; see third-party/untitledui-react/SOURCE.md": true,
+    "//exactOptionalPropertyTypes": "disabled for vendored Untitled UI (MIT) sources; see third-party/untitledui-react/SOURCE.md",
     "exactOptionalPropertyTypes": false,
     "noUncheckedSideEffectImports": true,
     "paths": {
