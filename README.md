@@ -6,7 +6,7 @@ T13 App Kit łączy kod aplikacji React, backend TypeScript, mechanizmy kont i b
 
 Punkt wyjścia jest white label: białe tło, neutralne komponenty i konfigurowalna nazwa produktu. Korzystanie z zestawu nie wymaga nadawania aplikacji wyglądu T13 ani podłączania jej do centralnej usługi T13.
 
-**Obecna wersja: `0.1.0-dev`.** Dostarczony i sprawdzony jest przyrost webowych kont i ustawień. Cały plan App Kita, w tym mobile i pozostałe moduły, nie jest jeszcze ukończonym wydaniem 1.0. Zakres wykonanych kontroli znajduje się w [raporcie stanu](docs/status.md), a wybrane moduły w [manifeście](t13.project.json).
+**Obecna wersja: `0.1.0-dev`.** Pierwszy przyrost Supabase z kontem i prywatnymi notatkami jest w walidacji; nie jest jeszcze zaakceptowanym wydaniem. Zachowany przyrost kont Better Auth służy jako ścieżka legacy i rollback do czasu odbioru WBS-APP1-01. Cały plan App Kita, w tym mobile i pozostałe moduły, nie jest jeszcze ukończonym wydaniem 1.0. Zakres kontroli znajduje się w [raporcie stanu](docs/status.md) i [kontrakcie Supabase](docs/supabase.md), a moduły w [manifeście](t13.project.json).
 
 ## Dlaczego powstaje
 
@@ -34,7 +34,7 @@ Do publicznej strony firmowej, bloga i CMS-a służy osobny [T13 Site Kit](https
 
 **Mały wymagany fundament, reszta dobierana do produktu.** Organizacje, pliki, AI, badania i billing nie mają być obowiązkowym wyposażeniem każdej aplikacji. Mały projekt nie powinien utrzymywać infrastruktury dużego systemu.
 
-**Dojrzałe mechanizmy zamiast własnego uwierzytelniania.** Konta, hasła, sesje i MFA opierają się na Better Auth. Kod T13 łączy bibliotekę z ekranami, konfiguracją i regułami aplikacji; nie tworzy własnej kryptografii.
+**Dojrzałe mechanizmy zamiast własnego uwierzytelniania.** Pierwszy przyrost używa Supabase Auth; zachowany legacy używa Better Auth. Kod zestawu łączy dojrzałego dostawcę z ekranami, konfiguracją i regułami aplikacji; nie tworzy własnej kryptografii.
 
 **Jeden katalog komponentów.** Agent najpierw korzysta z istniejących elementów i bloków. Nowy komponent powstaje przy rzeczywistym braku, nie dlatego, że łatwiej wygenerować kolejny przycisk.
 
@@ -46,13 +46,13 @@ Poniższa tabela opisuje dostarczony przyrost, nie cały docelowy katalog.
 
 | Obszar | Zakres w kodzie | Granica obecnej wersji |
 |---|---|---|
-| Konta | Rejestracja, weryfikacja e-maila, logowanie i wylogowanie, ponowna wysyłka weryfikacji, odzyskiwanie i reset hasła | Zmiana e-maila i usunięcie konta są jeszcze planowane |
+| Konta | Kandydat Supabase: rejestracja, kod weryfikacyjny, logowanie i wylogowanie na `/notes`; legacy Better Auth pozostaje dostępny osobno | Odbiór Supabase, zmiana e-maila i usunięcie konta są jeszcze planowane |
 | Bezpieczeństwo | Zmiana hasła, TOTP z potwierdzeniem konfiguracji, kody odzyskiwania, lista sesji, odwołanie jednej lub pozostałych sesji, wymaganie świeżego logowania | Nie jest to pełny audyt bezpieczeństwa ani obsługa wszystkich metod logowania |
 | Profil i preferencje | Edycja nazwy, język `pl`/`en` i strefa czasowa zapisane na koncie | Język wpływa na formaty; interfejs nie ma jeszcze pełnych tłumaczeń |
-| Dostęp do danych | Operacje przypisane do uwierzytelnionego właściciela, kontrola sesji i zweryfikowanego adresu | Nie ma jeszcze ogólnego modelu organizacji, uprawnień do zasobów ani RLS |
+| Dostęp do danych | Kandydat Supabase przypisuje Notes do zweryfikowanego właściciela przez PostgreSQL RLS; legacy sprawdza sesję po stronie API | Nie ma jeszcze ogólnego modelu organizacji ani uprawnień do zasobów |
 | Eksport | JSON z profilem i preferencjami osoby wykonującej operację | To eksport konta, nie pełny eksport przyszłych plików i materiałów aplikacji |
 | Interfejs | Neutralna powłoka, formularze konta, panel `/account`, katalog `/catalog` | Katalog obejmuje obecnie wybrany zestaw podstaw; pozostałości domyślnego shadcn wymagają jeszcze uporządkowania |
-| Backend i dane | Fastify, Better Auth, PostgreSQL, Drizzle, zachowana historia migracji i walidacja konfiguracji | Pełny cykl retencji, zgód i usuwania danych pozostaje do wykonania |
+| Backend i dane | Supabase Auth/PostgreSQL/Storage dla nowego przyrostu; zachowany Fastify/Better Auth/Drizzle dla rollbacku | Supabase migration/types/RLS i pełny cykl retencji, zgód oraz usuwania danych pozostają do wykonania |
 | Poczta i środowisko | SMTP, szablony React Email, lokalny PostgreSQL i Mailpit, przykłady konfiguracji | Podłączenie rzeczywistego hostingu i nadawcy poczty wymaga konfiguracji operatora |
 | Praca agenta | `AGENTS.md`, manifest, karty modułów, instrukcja uruchomienia i testy | Instrukcje nie są automatycznym instalatorem ani gwarancją poprawnego wyniku dowolnego agenta |
 
@@ -60,30 +60,29 @@ Poniższa tabela opisuje dostarczony przyrost, nie cały docelowy katalog.
 
 ## Architektura
 
-Obecny przepływ żądania:
+Przepływ pierwszego przyrostu `/notes`:
 
 ```text
 Przeglądarka: React + TypeScript
         |
-        | /api na tej samej domenie
+        | Supabase public API + SDK-managed session
         v
-Wąskie proxy w powłoce TanStack Start / Lovable
+Supabase Auth / PostgREST / PostgreSQL RLS
         |
         v
-API: Fastify + Better Auth
-        |                  |
-        v                  v
-PostgreSQL / Drizzle     SMTP / React Email
+Notes owned by the authenticated user
+
+Legacy account flow (rollback only): browser → same-origin proxy → Fastify / Better Auth → PostgreSQL / Drizzle.
 ```
 
 | Warstwa | Rozwiązanie | Odpowiedzialność |
 |---|---|---|
 | Web | React, TypeScript, TanStack Start, Tailwind | Ekrany, nawigacja, formularze i podgląd |
 | UI | Publiczne źródła Untitled UI React MIT, React Aria, bloki T13 | Kontrolki i powtarzalne fragmenty interfejsu |
-| API | Node.js, TypeScript, Fastify | Walidacja, dostęp, konfiguracja i operacje konta |
-| Tożsamość | Better Auth, z wersją zgodną po stronie klienta i serwera | Poświadczenia, sesje i drugi składnik logowania |
-| Dane | PostgreSQL i Drizzle | Zapis oraz wersjonowanie schematu |
-| Poczta | SMTP, React Email; Mailpit lokalnie | Wiadomości wymagane przez proces konta |
+| API | Supabase public API dla `/notes`; Fastify legacy | Dane, dostęp i konfiguracja zgodnie z właściwym przyrostem |
+| Tożsamość | Supabase Auth dla `/notes`; Better Auth legacy | Poświadczenia i sesje bez własnej kryptografii |
+| Dane | Supabase PostgreSQL/RLS dla `/notes`; PostgreSQL/Drizzle legacy | Zapis i wersjonowanie schematu |
+| Poczta | Supabase local SMTP/Mailpit dla `/notes`; SMTP/React Email legacy | Wiadomości wymagane przez proces konta |
 | Kontrakty | `shared/` | Wspólne typy i walidacja bez sekretów i zależności serwerowych |
 
 Web i API mają obecnie osobne procesy oraz pliki zależności. Build webu nie wymaga uruchomionej bazy. Sam frontend może pokazać katalog i brak konfiguracji, ale nie zastępuje działającego API.
@@ -113,42 +112,31 @@ scripts/                 kontrola kompletności źródeł
 
 ## Szybki start
 
-Potrzebne są Node.js 22.16+, Bun do odtworzenia zapisanych zależności oraz Docker Compose albo równoważny lokalny PostgreSQL i SMTP. Ostatnia pełna kontrola używała Node 22.23.2 i Bun 1.4.2; szczegóły są w [raporcie](docs/status.md).
+Potrzebne są Node.js 22.16.0, pnpm 10.12.1 i Docker dla ścieżki Supabase. Legacy `server/` ma osobny Bun lockfile i nie jest wymagany dla `/notes`. Szczegółowy kontrakt i ograniczenia są w [docs/supabase.md](docs/supabase.md).
 
-W katalogu sklonowanego repozytorium uruchom usługi developerskie:
+W katalogu sklonowanego repozytorium zainstaluj web i uruchom izolowany Supabase:
 
 ```sh
-docker compose -f compose.yaml up -d
+pnpm install --frozen-lockfile
+pnpm exec supabase start
+pnpm exec supabase db reset
+pnpm exec supabase status
 ```
 
-Następnie przygotuj API. Kopiowanie przykładu dotyczy pierwszego uruchomienia — nie nadpisuj istniejącej konfiguracji:
+Utwórz lokalny `.env` na podstawie `.env.example` i ustaw publiczny URL oraz klucz z `supabase status`. Nie wpisuj kluczy secret/service-role do `VITE_*`:
 
 ```sh
-cd server
-bun install --frozen-lockfile
 cp .env.example .env
-openssl rand -hex 32
+# Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY from local status output.
 ```
-
-Wpisz wygenerowaną wartość do `BETTER_AUTH_SECRET` w lokalnym `server/.env`. Dla standardowego środowiska ustaw `APP_URL`, `AUTH_URL` i `TRUSTED_ORIGINS` na `http://localhost:8080`. To publiczny adres webu, nie wewnętrzny port API. Przykład zawiera lokalne połączenia PostgreSQL i Mailpit.
-
-Z katalogu `server/`:
 
 ```sh
-bun --env-file=.env run db:migrate
-bun --env-file=.env run dev
+pnpm dev -- --host 127.0.0.1 --port 3000
 ```
 
-W drugim terminalu, z głównego katalogu repozytorium:
+Aplikacja działa pod `http://localhost:3000`, a `/notes` korzysta z lokalnego Auth/Data API. Kod potwierdzający jest dostępny w lokalnym Mailpit skonfigurowanym przez CLI. `/catalog` działa bez backendu.
 
-```sh
-bun install --frozen-lockfile
-API_INTERNAL_URL=http://127.0.0.1:3001 bun run dev -- --port 8080
-```
-
-Aplikacja działa pod `http://localhost:8080`, katalog pod `/catalog`, a skrzynka Mailpit pod `http://127.0.0.1:8025`. Rejestracja wymaga potwierdzenia linku z wiadomości testowej.
-
-`API_INTERNAL_URL` jest zmienną procesu serwerowego. Nie dodawaj jej do publicznej konfiguracji `VITE_*`. Bez niej operacje konta zwracają jawny błąd. Pełna instrukcja, w tym oddzielna baza testowa: [docs/start.md](docs/start.md).
+Legacy Better Auth uruchamia się osobno według [docs/start.md](docs/start.md), wyłącznie do porównania/rollbacku. Nie uruchamiaj dwóch ścieżek jako jednego systemu tożsamości.
 
 ## Praca z AI i Lovable
 
@@ -208,21 +196,22 @@ Nie ma centralnego mechanizmu, który sam zaktualizuje wszystkie utworzone aplik
 
 ## Weryfikacja
 
-Dla scalenia `8d280484` zapisano udany build klienta, SSR i Nitro, pełne kontrole typów webu oraz API, 14 testów reguł/proxy, 8 testów jednostkowych backendu i 6 testów integracyjnych z rzeczywistym PostgreSQL oraz Mailpit. Dowód i dokładne środowisko: [docs/status.md](docs/status.md).
+Dla scalenia `8d280484` zapisano udany build klienta, SSR i Nitro, pełne kontrole typów webu oraz API, 14 testów reguł/proxy, 8 testów jednostkowych backendu i 6 testów integracyjnych z rzeczywistym PostgreSQL oraz Mailpit. To dowód ścieżki legacy; dowody i ograniczenia pierwszego przyrostu Supabase są w [docs/supabase.md](docs/supabase.md) oraz bieżącym Issue/PR.
 
 To testy API i kodu, nie pełny przeglądarkowy odbiór hostowanego Lovable, rzeczywistej dostarczalności poczty czy aplikacji mobilnych. Wynik dotyczy wskazanej wersji — nie jest automatycznie przenoszony na późniejsze zmiany.
 
 Podstawowe kontrole uruchamia się lokalnie po spójnym pakiecie zmian:
 
 ```sh
-node --experimental-strip-types --test tests/*.test.mjs
 node scripts/check-source-integrity.mjs
-bun run build
-./node_modules/.bin/tsc --noEmit -p tsconfig.json
+node --experimental-strip-types --test tests/*.test.mjs
+pnpm test:notes
+pnpm build
+pnpm typecheck
 (cd server && bun run typecheck && ./node_modules/.bin/vitest run tests/unit)
 ```
 
-Integracje wymagają oddzielnej lokalnej bazy `appkit_test`, testowej skrzynki oraz jawnego zezwolenia na czyszczenie danych testowych. Instrukcja jest w [docs/start.md](docs/start.md). CI na `main` jest ręczne; nie uruchamia się po każdym pushu lub PR. Nie usuwamy zabezpieczeń ani testów po to, żeby uzyskać zielony wynik.
+Rzeczywisty test dwóch kont uruchamia się przez `APP_KIT_TEST_CONFIRM=LOCAL_SYNTHETIC pnpm test:notes:api` po uruchomieniu lokalnego Supabase. Instrukcja ścieżki Supabase i legacy jest w [docs/start.md](docs/start.md). CI na `main` jest ręczne; nie uruchamia się po każdym pushu lub PR. Nie usuwamy zabezpieczeń ani testów po to, żeby uzyskać zielony wynik.
 
 ## Kierunek rozwoju
 

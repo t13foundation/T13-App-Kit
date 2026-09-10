@@ -14,14 +14,14 @@ The one-time completion sequence below is a recipe, not a claim these commands p
 
 ```sh
 # Resolve dependencies in an environment with package-registry access.
-corepack pnpm install
-corepack pnpm exec supabase --help
-corepack pnpm exec supabase migration new --help
-corepack pnpm exec supabase start --help
-corepack pnpm exec supabase gen types --help
+pnpm install --frozen-lockfile
+pnpm exec supabase --help
+pnpm exec supabase migration new --help
+pnpm exec supabase start --help
+pnpm exec supabase gen types --help
 
 # Generate the initial versioned filename using the real CLI.
-corepack pnpm exec supabase migration new private_notes
+pnpm exec supabase migration new private_notes
 ```
 
 Copy the reviewed contents of `supabase/schema/notes.sql` into the new migration file emitted by that command. The explicit grants, column privileges, private schema and function permissions are security-critical: do not assume an automatic schema diff preserved every grant. Keep both the declaration and the versioned migration consistent. Then start the **disposable local** instance and apply its migrations using the pinned CLI's documented commands; confirm migration history and run database advisors. Do not use remote `link`, `db push` or a customer database for this work.
@@ -30,7 +30,7 @@ Replace `src/lib/supabase/database.types.ts` with actual `supabase gen types typ
 
 Copy `.env.example` to an ignored local environment file. Set `VITE_SUPABASE_URL` to the local API origin and `VITE_SUPABASE_PUBLISHABLE_KEY` to its public key. The local CLI may provide a legacy `anon` JWT instead of an `sb_publishable_` key. Never copy a secret/service-role key into any `VITE_*` variable. Both missing variables leave the introduction/catalog usable; partial or unsafe configuration fails explicitly. Vite checks this before emitting assets as well as at browser initialization.
 
-Run the web app with `corepack pnpm dev -- --host 127.0.0.1 --port 3000`, then open `/notes`. The Vite/TanStack plugin must generate the actual route tree; do not hand-edit `src/routeTree.gen.ts`. Local email confirmations are enabled, tokens expire after 600 seconds, and the custom template contains a code rather than an authentication URL. Mailpit is configured on port 54324. Hosted email/Resend/Turnstile setup is outside this first slice.
+Run the web app with `pnpm dev -- --host 127.0.0.1 --port 3000`, then open `/notes`. The Vite/TanStack plugin must generate the actual route tree; do not hand-edit `src/routeTree.gen.ts`. Local email confirmations are enabled, tokens expire after 600 seconds, and the custom template contains a code rather than an authentication URL. Mailpit is configured on port 54324. Hosted email/Resend/Turnstile setup is outside this first slice.
 
 ## Data and authorization
 
@@ -52,15 +52,15 @@ Browser-readable tokens can be stolen by XSS. This slice does not retain the leg
 
 ```sh
 # Pure unit/contract tests; does not prove database RLS.
-corepack pnpm test:notes
+pnpm test:notes
 
 # Real Auth/Data API checks with two fresh synthetic identities and local mail.
 # Set SUPABASE_TEST_PUBLISHABLE_KEY through the environment, never in source.
-APP_KIT_TEST_CONFIRM=LOCAL_SYNTHETIC corepack pnpm test:notes:api
+APP_KIT_TEST_CONFIRM=LOCAL_SYNTHETIC pnpm test:notes:api
 
 # After route generation and a frozen installation:
-corepack pnpm typecheck
-corepack pnpm build
+pnpm typecheck
+pnpm build
 ```
 
 The direct API script refuses remote hosts or unexpected ports, uses only the public key, rejects redirects, and never prints credentials or email codes. It checks required confirmation, OTP replay, login, owned CRUD, anonymous access, both directions of cross-user reads/writes/deletes, foreign-owner insertion, immutable ownership, invalid data and stale edits. It leaves only synthetic Auth identities in the disposable local database. Reset/discard only that explicitly disposable local instance after testing; the script cannot delete identities through a privileged key.

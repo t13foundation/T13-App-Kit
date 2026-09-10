@@ -1,3 +1,11 @@
 packages:
-  - '.'
+  - "."
 # server/ stays an isolated legacy rollback target until replacement acceptance.
+
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+minimumReleaseAgeExcludePrune: true
+strictDepBuilds: true
+onlyBuiltDependencies:
+  - esbuild
+  - supabase
