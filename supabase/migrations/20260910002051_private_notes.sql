@@ -1,5 +1,5 @@
--- Notes schema generated with the pinned Supabase CLI. Keep explicit grants and
--- policies reviewed against supabase/schema/notes.sql.
+-- Migration filename created with the pinned Supabase CLI. Keep explicit grants
+-- and policies reviewed against supabase/schema/notes.sql.
 create schema if not exists app_private;
 revoke all on schema app_private from public;
 grant usage on schema app_private to authenticated;

@@ -174,7 +174,11 @@ Dostępność jest wymaganiem komponentów i procesów: semantyka, etykiety, fok
 
 ## Prywatność i bezpieczeństwo
 
-Sesje webowe korzystają z cookies `HttpOnly`; tokenów nie zapisujemy w `localStorage`. Publiczne adresy, zaufane originy i sekrety podlegają walidacji. API sprawdza uprawnienia niezależnie od tego, czy interfejs pokazał przycisk.
+Legacy web sessions use `HttpOnly` cookies. The Supabase `/notes` path uses the provider-managed
+browser session described in [the Supabase contract](docs/supabase.md), not an application-managed
+`localStorage` token. Tokens are not copied into application state, logs or exports. Public addresses,
+trusted origins and secrets are validated, and the API checks authorization independently of whether
+the interface showed a button.
 
 Operacje wrażliwe wymagają sesji utworzonej w ciągu ostatnich pięciu minut. Lista sesji nie ujawnia surowych tokenów, adresów IP ani pełnego user agenta. Reset hasła nie wyłącza MFA. Nieaktywne lub niezaimplementowane skróty biblioteki nie powinny omijać zasad zestawu.
 
