@@ -3,31 +3,57 @@
 Use Node 22.16.0, pnpm 10.34.5 and Docker for the accepted Supabase web path. The legacy
 `server/` remains a separate Bun rollback target.
 
-## Supabase (WBS-APP1-01)
+## Supabase (WBS-APP1-01 / WBS-APPREV1-02)
 
-From the repository root, install the pinned web dependencies and start the disposable local
-stack:
+From the repository root, install the pinned web dependencies and inspect the local container
+runtime before starting the disposable stack. If Docker is shared with other work, use a
+separate Colima profile and pass its socket explicitly; never prune or reset the shared runtime.
+
+```sh
+docker context ls
+colima list
+colima start --profile t13-apprev1 --cpu 2 --memory 4 --disk 40 --activate=false
+export DOCKER_HOST="unix://${HOME}/.colima/t13-apprev1/docker.sock"
+```
+
+Then start and inspect the local database:
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm exec supabase start
 pnpm exec supabase db reset
 pnpm exec supabase status
+pnpm exec supabase migration list --local
+pnpm exec supabase db lint --local --schema public --fail-on warning
 ```
 
-Copy `.env.example` to the ignored `.env`. Set `VITE_SUPABASE_URL` and
+Copy `.env.example` only when the ignored environment file does not already exist; this keeps an
+existing configured environment intact. Set `VITE_SUPABASE_URL` and
 `VITE_SUPABASE_PUBLISHABLE_KEY` from the local status output. Only a public/anon key may be
 exposed to the browser; never put a secret or service-role key in a `VITE_*` variable.
 
 ```sh
-cp .env.example .env
+if [ -e .env ]; then
+  echo "Keeping existing .env; review it without overwriting it."
+else
+  cp .env.example .env
+fi
 pnpm dev -- --host 127.0.0.1 --port 3000
 ```
 
 Open `http://127.0.0.1:3000/notes`. Use the local Mailpit inbox shown by `supabase status` to
-retrieve the six-digit confirmation code. `/catalog` works without a backend. The local
-`supabase db lint --local` and `supabase gen types typescript --local` commands require the
-stack to be running; hosted links, deployments and provider credentials are outside this slice.
+retrieve the six-digit confirmation code. `/catalog` works without a backend. Generate database
+types from the running schema into a temporary file, and replace the tracked file only if the
+command succeeds:
+
+```sh
+pnpm exec supabase gen types typescript --local > /tmp/app-kit-database.types.ts
+cmp -s /tmp/app-kit-database.types.ts src/lib/supabase/database.types.ts || \
+  cp /tmp/app-kit-database.types.ts src/lib/supabase/database.types.ts
+```
+
+The Vite/TanStack plugin must generate the actual route tree; do not hand-edit
+`src/routeTree.gen.ts`. Hosted links, deployments and provider credentials are outside this slice.
 
 ## Legacy services and API
 

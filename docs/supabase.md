@@ -4,13 +4,13 @@ This is the technical contract for WBS-APP1-01. The accepted target is TanStack 
 
 ## Delivery boundary
 
-The slice's current Issue/PR is authoritative for execution evidence. A source implementation is not acceptance. This change deliberately supplies a declarative schema and an explicitly hand-authored database type draft; it must not be described as an applied migration or generated types. The pnpm lockfile, actual generated migration/types/route tree, installed-dependency checks and provider/browser evidence are merge blockers. Do not merge it by bypassing frozen-lockfile checks, removing tests or enabling automatic CI.
+The slice's current Issue/PR is authoritative for execution evidence. A source implementation is not acceptance. The versioned migration `supabase/migrations/20260910002051_private_notes.sql` is applied by the local CLI, and `src/lib/supabase/database.types.ts` is generated from that running schema. The pnpm lockfile, generated route tree, installed-dependency checks, direct API evidence and browser evidence are merge blockers. Do not merge it by bypassing frozen-lockfile checks, removing tests or enabling automatic CI.
 
 ## Local preparation
 
 Use Node 22.16.0 (`.node-version`) and pnpm 10.34.5 (`packageManager`). Supabase CLI is pinned to 2.113.0 and the browser SDK to 2.111.0. Docker is required for local Supabase. The legacy `server/` is intentionally excluded from the new workspace. No hosted project, production credentials, real email recipient or paid resource is required for local validation.
 
-The one-time completion sequence below is a recipe, not a claim these commands passed for this change:
+The reproducible completion sequence below is the accepted local runbook:
 
 ```sh
 # Resolve dependencies in an environment with package-registry access.
@@ -20,15 +20,55 @@ pnpm exec supabase migration new --help
 pnpm exec supabase start --help
 pnpm exec supabase gen types --help
 
-# Generate the initial versioned filename using the real CLI.
-pnpm exec supabase migration new private_notes
+# Inspect shared Docker/Colima first. Use a disposable profile when the default
+# runtime is shared; never prune or reset unrelated containers or volumes.
+docker context ls
+colima list
+colima start --profile t13-apprev1 --cpu 2 --memory 4 --disk 40 --activate=false
+export DOCKER_HOST="unix://${HOME}/.colima/t13-apprev1/docker.sock"
 ```
 
-Copy the reviewed contents of `supabase/schema/notes.sql` into the new migration file emitted by that command. The explicit grants, column privileges, private schema and function permissions are security-critical: do not assume an automatic schema diff preserved every grant. Keep both the declaration and the versioned migration consistent. Then start the **disposable local** instance and apply its migrations using the pinned CLI's documented commands; confirm migration history and run database advisors. Do not use remote `link`, `db push` or a customer database for this work.
+The migration already exists in this repository and must not be duplicated. Start the **disposable
+local** instance, apply the migration, then inspect history and lint the schema:
 
-Replace `src/lib/supabase/database.types.ts` with actual `supabase gen types typescript --local` output after applying the migration. Generate into a temporary file first and replace the tracked file only if the command succeeds. Commit the real `pnpm-lock.yaml`, generated migration and types. Reconcile the manual workflow with pnpm after a verified install; the old Bun lockfiles/workflow still describe the baseline and are not a supported way to install this draft's added dependencies. Do not remove the legacy server lockfile before its rollback boundary is accepted.
+```sh
+pnpm exec supabase start
+pnpm exec supabase db reset
+pnpm exec supabase migration list --local
+pnpm exec supabase db lint --local --schema public --fail-on warning
+```
 
-Copy `.env.example` to an ignored local environment file. Set `VITE_SUPABASE_URL` to the local API origin and `VITE_SUPABASE_PUBLISHABLE_KEY` to its public key. The local CLI may provide a legacy `anon` JWT instead of an `sb_publishable_` key. Never copy a secret/service-role key into any `VITE_*` variable. Both missing variables leave the introduction/catalog usable; partial or unsafe configuration fails explicitly. Vite checks this before emitting assets as well as at browser initialization.
+The explicit grants, column privileges, private schema and function permissions are
+security-critical. Do not replace the migration with an automatic schema diff, use remote
+`link`/`db push`, or point this runbook at a customer database.
+
+Generate types into a temporary file after applying the migration and replace the tracked file only
+if the command succeeds:
+
+```sh
+pnpm exec supabase gen types typescript --local > /tmp/app-kit-database.types.ts
+cmp -s /tmp/app-kit-database.types.ts src/lib/supabase/database.types.ts || \
+  cp /tmp/app-kit-database.types.ts src/lib/supabase/database.types.ts
+```
+
+Commit the real `pnpm-lock.yaml`, generated migration and generated types. The old Bun lockfile
+under `server/` remains the rollback boundary and must not be removed.
+
+Copy `.env.example` to an ignored local environment file only when that file does not already
+exist; never overwrite a configured environment. Set `VITE_SUPABASE_URL` to the local API origin
+and `VITE_SUPABASE_PUBLISHABLE_KEY` to its public key. The local CLI may provide a legacy `anon`
+JWT instead of an `sb_publishable_` key. Never copy a secret/service-role key into any `VITE_*`
+variable. Both missing variables leave the introduction/catalog usable; partial or unsafe
+configuration fails explicitly. Vite checks this before emitting assets as well as at browser
+initialization.
+
+```sh
+if [ -e .env ]; then
+  echo "Keeping existing .env; review it without overwriting it."
+else
+  cp .env.example .env
+fi
+```
 
 Run the web app with `pnpm dev -- --host 127.0.0.1 --port 3000`, then open `/notes`. The Vite/TanStack plugin must generate the actual route tree; do not hand-edit `src/routeTree.gen.ts`. Local email confirmations are enabled, tokens expire after 600 seconds, and the custom template contains a code rather than an authentication URL. Mailpit is configured on port 54324. Hosted email/Resend/Turnstile setup is outside this first slice.
 
@@ -65,7 +105,13 @@ pnpm build
 
 The direct API script refuses remote hosts or unexpected ports, uses only the public key, rejects redirects, and never prints credentials or email codes. It checks required confirmation, OTP replay, login, owned CRUD, anonymous access, both directions of cross-user reads/writes/deletes, foreign-owner insertion, immutable ownership, invalid data and stale edits. It leaves only synthetic Auth identities in the disposable local database. Reset/discard only that explicitly disposable local instance after testing; the script cannot delete identities through a privileged key.
 
-Complete the interactive desktop/mobile flow, keyboard focus/confirmation behavior and simultaneous account-switch checks separately. Obtain an explicitly authorized disposable Cloudflare environment before deployment evidence. Existing Vite/Nitro Cloudflare wiring is preserved, not a deployment claim. Keep GitHub CI manual-only and do not confuse syntax checks or mocked repository tests with an installed build, a live API test or browser acceptance.
+Complete the interactive desktop/mobile flow, keyboard focus/confirmation behavior and simultaneous
+account-switch checks against the same disposable database. Use two fresh synthetic accounts and
+Mailpit for verification, and record only outcome summaries—not credentials, tokens or email codes.
+Obtain an explicitly authorized disposable Cloudflare environment before deployment evidence.
+Existing Vite/Nitro Cloudflare wiring is preserved, not a deployment claim. Keep GitHub CI
+manual-only and do not confuse syntax checks or mocked repository tests with an installed build, a
+live API test or browser acceptance.
 
 ## Rollback and acceptance
 
