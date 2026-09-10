@@ -112,7 +112,7 @@ scripts/                 kontrola kompletności źródeł
 
 ## Szybki start
 
-Potrzebne są Node.js 22.16.0, pnpm 10.12.1 i Docker dla ścieżki Supabase. Legacy `server/` ma osobny Bun lockfile i nie jest wymagany dla `/notes`. Szczegółowy kontrakt i ograniczenia są w [docs/supabase.md](docs/supabase.md).
+Potrzebne są Node.js 22.16.0, pnpm 10.34.5 i Docker dla ścieżki Supabase. Legacy `server/` ma osobny Bun lockfile i nie jest wymagany dla `/notes`. Szczegółowy kontrakt i ograniczenia są w [docs/supabase.md](docs/supabase.md).
 
 W katalogu sklonowanego repozytorium zainstaluj web i uruchom izolowany Supabase:
 

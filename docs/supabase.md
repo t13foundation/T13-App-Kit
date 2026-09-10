@@ -8,7 +8,7 @@ The slice's current Issue/PR is authoritative for execution evidence. A source i
 
 ## Local preparation
 
-Use Node 22.16.0 (`.node-version`) and pnpm 10.12.1 (`packageManager`). Supabase CLI is pinned to 2.113.0 and the browser SDK to 2.111.0. Docker is required for local Supabase. The legacy `server/` is intentionally excluded from the new workspace. No hosted project, production credentials, real email recipient or paid resource is required for local validation.
+Use Node 22.16.0 (`.node-version`) and pnpm 10.34.5 (`packageManager`). Supabase CLI is pinned to 2.113.0 and the browser SDK to 2.111.0. Docker is required for local Supabase. The legacy `server/` is intentionally excluded from the new workspace. No hosted project, production credentials, real email recipient or paid resource is required for local validation.
 
 The one-time completion sequence below is a recipe, not a claim these commands passed for this change:
 

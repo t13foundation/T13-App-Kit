@@ -1,6 +1,6 @@
 # Local development
 
-Use Node 22.16.0, pnpm 10.12.1 and Docker for the accepted Supabase web path. The legacy
+Use Node 22.16.0, pnpm 10.34.5 and Docker for the accepted Supabase web path. The legacy
 `server/` remains a separate Bun rollback target.
 
 ## Supabase (WBS-APP1-01)
