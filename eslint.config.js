@@ -37,4 +37,15 @@ export default tseslint.config(
     },
   },
   eslintPluginPrettier,
+  {
+    // Vendored upstream sources are kept byte-identical to github.com/untitleduico/react
+    // so they stay diffable against upstream. See third-party/untitledui-react/SOURCE.md.
+    files: ["src/components/kit/{controls,forms,feedback,utils}/*.{ts,tsx}"],
+    ignores: ["src/components/kit/feedback/alert.tsx", "src/components/kit/feedback/badge.tsx"],
+    rules: {
+      "prettier/prettier": "off",
+      "react-refresh/only-export-components": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+    },
+  },
 );

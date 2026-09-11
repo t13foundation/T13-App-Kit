@@ -38,7 +38,8 @@ bun install --frozen-lockfile
 API_INTERNAL_URL=http://127.0.0.1:3001 bun run dev -- --port 8080
 ```
 
-Open `http://localhost:8080`. Without API_INTERNAL_URL the catalog still works;
+Open `http://localhost:8080`. Without API_INTERNAL_URL the overview page and its
+component presentation still work;
 account operations report that the backend is not configured. The variable is server-only,
 never VITE-prefixed. The API proxy strips all caller-selected forwarding/IP headers.
 Until a trusted ingress is configured and tested, users behind the web proxy share its peer-IP quota.

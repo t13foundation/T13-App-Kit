@@ -26,7 +26,7 @@ function VerifyEmailPage() {
       title="Potwierdź adres e-mail"
       description="Dostęp do danych konta jest możliwy dopiero po potwierdzeniu adresu."
       footer={
-        <Link to="/sign-in" className="font-medium text-gray-900 underline">
+        <Link to="/sign-in" className="font-medium text-primary underline">
           Wróć do logowania
         </Link>
       }

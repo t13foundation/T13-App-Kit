@@ -1,8 +1,23 @@
 node_modules
 dist
 .output
-.vinxi
-pnpm-lock.yaml
-package-lock.json
+.wrangler
 bun.lock
 routeTree.gen.ts
+
+# Vendored upstream sources are kept byte-identical to github.com/untitleduico/react
+# so they stay diffable against upstream. See third-party/untitledui-react/SOURCE.md.
+src/components/kit/tokens/theme.css
+src/components/kit/utils/cx.ts
+src/components/kit/utils/is-react-component.ts
+src/components/kit/controls/button.tsx
+src/components/kit/controls/checkbox.tsx
+src/components/kit/controls/toggle.tsx
+src/components/kit/forms/input.tsx
+src/components/kit/forms/label.tsx
+src/components/kit/forms/hint-text.tsx
+src/components/kit/forms/pin-input.tsx
+src/components/kit/forms/textarea.tsx
+src/components/kit/forms/select-native.tsx
+src/components/kit/forms/form.tsx
+src/components/kit/feedback/tooltip.tsx

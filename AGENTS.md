@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -7,12 +8,17 @@
 >
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
+
 <!-- LOVABLE:END -->
 
 ## App Kit rules
 
 - Implement directly in GitHub. Do not delegate code generation to Lovable.
 - Reuse `src/components/kit`, real MIT sources and Better Auth. No parallel UI library or custom authentication.
+- The shared UI layer is vendored identically into T13 Site Kit. Change it in both kits, refresh `kit-manifest.json`
+  with `node scripts/check-kit-parity.mjs --write`, and never let `bun run check:kit` fail.
+- Vendored Untitled UI files stay byte-identical to upstream: do not reformat them or add rules that rewrite them.
+- Compositions use semantic tokens (`text-primary`, `bg-secondary`, `border-secondary`), never raw gray steps.
 - White background, neutral grays, configurable product name. No required T13 branding.
 - Preserve both sides when reconciling branches. No force push, destructive reset or migration rewrite.
 - No installer, wizard, custom CLI or dynamic module engine.

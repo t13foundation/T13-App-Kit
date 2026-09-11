@@ -44,17 +44,17 @@ Do publicznej strony firmowej, bloga i CMS-a służy osobny [T13 Site Kit](https
 
 Poniższa tabela opisuje dostarczony przyrost, nie cały docelowy katalog.
 
-| Obszar | Zakres w kodzie | Granica obecnej wersji |
-|---|---|---|
-| Konta | Rejestracja, weryfikacja e-maila, logowanie i wylogowanie, ponowna wysyłka weryfikacji, odzyskiwanie i reset hasła | Zmiana e-maila i usunięcie konta są jeszcze planowane |
-| Bezpieczeństwo | Zmiana hasła, TOTP z potwierdzeniem konfiguracji, kody odzyskiwania, lista sesji, odwołanie jednej lub pozostałych sesji, wymaganie świeżego logowania | Nie jest to pełny audyt bezpieczeństwa ani obsługa wszystkich metod logowania |
-| Profil i preferencje | Edycja nazwy, język `pl`/`en` i strefa czasowa zapisane na koncie | Język wpływa na formaty; interfejs nie ma jeszcze pełnych tłumaczeń |
-| Dostęp do danych | Operacje przypisane do uwierzytelnionego właściciela, kontrola sesji i zweryfikowanego adresu | Nie ma jeszcze ogólnego modelu organizacji, uprawnień do zasobów ani RLS |
-| Eksport | JSON z profilem i preferencjami osoby wykonującej operację | To eksport konta, nie pełny eksport przyszłych plików i materiałów aplikacji |
-| Interfejs | Neutralna powłoka, formularze konta, panel `/account`, katalog `/catalog` | Katalog obejmuje obecnie wybrany zestaw podstaw; pozostałości domyślnego shadcn wymagają jeszcze uporządkowania |
-| Backend i dane | Fastify, Better Auth, PostgreSQL, Drizzle, zachowana historia migracji i walidacja konfiguracji | Pełny cykl retencji, zgód i usuwania danych pozostaje do wykonania |
-| Poczta i środowisko | SMTP, szablony React Email, lokalny PostgreSQL i Mailpit, przykłady konfiguracji | Podłączenie rzeczywistego hostingu i nadawcy poczty wymaga konfiguracji operatora |
-| Praca agenta | `AGENTS.md`, manifest, karty modułów, instrukcja uruchomienia i testy | Instrukcje nie są automatycznym instalatorem ani gwarancją poprawnego wyniku dowolnego agenta |
+| Obszar               | Zakres w kodzie                                                                                                                                        | Granica obecnej wersji                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Konta                | Rejestracja, weryfikacja e-maila, logowanie i wylogowanie, ponowna wysyłka weryfikacji, odzyskiwanie i reset hasła                                     | Zmiana e-maila i usunięcie konta są jeszcze planowane                                              |
+| Bezpieczeństwo       | Zmiana hasła, TOTP z potwierdzeniem konfiguracji, kody odzyskiwania, lista sesji, odwołanie jednej lub pozostałych sesji, wymaganie świeżego logowania | Nie jest to pełny audyt bezpieczeństwa ani obsługa wszystkich metod logowania                      |
+| Profil i preferencje | Edycja nazwy, język `pl`/`en` i strefa czasowa zapisane na koncie                                                                                      | Język wpływa na formaty; interfejs nie ma jeszcze pełnych tłumaczeń                                |
+| Dostęp do danych     | Operacje przypisane do uwierzytelnionego właściciela, kontrola sesji i zweryfikowanego adresu                                                          | Nie ma jeszcze ogólnego modelu organizacji, uprawnień do zasobów ani RLS                           |
+| Eksport              | JSON z profilem i preferencjami osoby wykonującej operację                                                                                             | To eksport konta, nie pełny eksport przyszłych plików i materiałów aplikacji                       |
+| Interfejs            | Neutralna powłoka, formularze konta, panel `/account`, strona otwierająca `/` z instrukcją i prezentacją komponentów                                   | Prezentacja obejmuje dostarczony zestaw podstaw; nie jest pełnym katalogiem docelowego wydania 1.0 |
+| Backend i dane       | Fastify, Better Auth, PostgreSQL, Drizzle, zachowana historia migracji i walidacja konfiguracji                                                        | Pełny cykl retencji, zgód i usuwania danych pozostaje do wykonania                                 |
+| Poczta i środowisko  | SMTP, szablony React Email, lokalny PostgreSQL i Mailpit, przykłady konfiguracji                                                                       | Podłączenie rzeczywistego hostingu i nadawcy poczty wymaga konfiguracji operatora                  |
+| Praca agenta         | `AGENTS.md`, manifest, karty modułów, instrukcja uruchomienia i testy                                                                                  | Instrukcje nie są automatycznym instalatorem ani gwarancją poprawnego wyniku dowolnego agenta      |
 
 Źródłem aktualnego stanu są [manifest](t13.project.json) i [raport weryfikacji](docs/status.md). Starsze przeglądy w `docs/reviews/` opisują wskazane w nich historyczne wersje.
 
@@ -76,15 +76,15 @@ API: Fastify + Better Auth
 PostgreSQL / Drizzle     SMTP / React Email
 ```
 
-| Warstwa | Rozwiązanie | Odpowiedzialność |
-|---|---|---|
-| Web | React, TypeScript, TanStack Start, Tailwind | Ekrany, nawigacja, formularze i podgląd |
-| UI | Publiczne źródła Untitled UI React MIT, React Aria, bloki T13 | Kontrolki i powtarzalne fragmenty interfejsu |
-| API | Node.js, TypeScript, Fastify | Walidacja, dostęp, konfiguracja i operacje konta |
-| Tożsamość | Better Auth, z wersją zgodną po stronie klienta i serwera | Poświadczenia, sesje i drugi składnik logowania |
-| Dane | PostgreSQL i Drizzle | Zapis oraz wersjonowanie schematu |
-| Poczta | SMTP, React Email; Mailpit lokalnie | Wiadomości wymagane przez proces konta |
-| Kontrakty | `shared/` | Wspólne typy i walidacja bez sekretów i zależności serwerowych |
+| Warstwa   | Rozwiązanie                                                   | Odpowiedzialność                                               |
+| --------- | ------------------------------------------------------------- | -------------------------------------------------------------- |
+| Web       | React, TypeScript, TanStack Start, Tailwind                   | Ekrany, nawigacja, formularze i podgląd                        |
+| UI        | Publiczne źródła Untitled UI React MIT, React Aria, bloki T13 | Kontrolki i powtarzalne fragmenty interfejsu                   |
+| API       | Node.js, TypeScript, Fastify                                  | Walidacja, dostęp, konfiguracja i operacje konta               |
+| Tożsamość | Better Auth, z wersją zgodną po stronie klienta i serwera     | Poświadczenia, sesje i drugi składnik logowania                |
+| Dane      | PostgreSQL i Drizzle                                          | Zapis oraz wersjonowanie schematu                              |
+| Poczta    | SMTP, React Email; Mailpit lokalnie                           | Wiadomości wymagane przez proces konta                         |
+| Kontrakty | `shared/`                                                     | Wspólne typy i walidacja bez sekretów i zależności serwerowych |
 
 Web i API mają obecnie osobne procesy oraz pliki zależności. Build webu nie wymaga uruchomionej bazy. Sam frontend może pokazać katalog i brak konfiguracji, ale nie zastępuje działającego API.
 
@@ -94,8 +94,8 @@ Backend pozostaje jednym systemem z wydzielanymi modułami, a nie obowiązkowym 
 
 ```text
 src/
-  app.config.ts          nazwa produktu i ustawienia powłoki
-  components/kit/        kanoniczny katalog komponentów i bloków
+  app.config.ts          nazwa produktu i metadane zestawu
+  components/kit/        kanoniczna warstwa UI: tokeny, prymitywy i bloki
   routes/                ekrany oraz trasa proxy API
   lib/                   klienci API, integracja kont i proxy
 server/
@@ -104,7 +104,8 @@ server/
   tests/                 testy jednostkowe i integracyjne
 shared/                  kontrakty i wspólne reguły
 third-party/             pochodzenie i licencja komponentów
-scripts/                 kontrola kompletności źródeł
+scripts/                 kontrola kompletności źródeł i spójności warstwy UI
+kit-manifest.json        sumy kontrolne plików współdzielonych z Site Kitem
  tests/                  testy reguł dostępu i proxy
  docs/                   uruchomienie, karty modułów i raporty
  t13.project.json        wersja zestawu i zakres modułów
@@ -146,7 +147,7 @@ bun install --frozen-lockfile
 API_INTERNAL_URL=http://127.0.0.1:3001 bun run dev -- --port 8080
 ```
 
-Aplikacja działa pod `http://localhost:8080`, katalog pod `/catalog`, a skrzynka Mailpit pod `http://127.0.0.1:8025`. Rejestracja wymaga potwierdzenia linku z wiadomości testowej.
+Aplikacja działa pod `http://localhost:8080`, strona otwierająca z instrukcją i prezentacją komponentów pod `/`, a skrzynka Mailpit pod `http://127.0.0.1:8025`. Rejestracja wymaga potwierdzenia linku z wiadomości testowej.
 
 `API_INTERNAL_URL` jest zmienną procesu serwerowego. Nie dodawaj jej do publicznej konfiguracji `VITE_*`. Bez niej operacje konta zwracają jawny błąd. Pełna instrukcja, w tym oddzielna baza testowa: [docs/start.md](docs/start.md).
 
@@ -176,7 +177,9 @@ Projekt referencyjny do remiksowania jest przewidzianym dodatkowym sposobem star
 
 ## Katalog i white label
 
-Kanoniczne miejsce to [`src/components/kit/`](src/components/kit). Obejmuje tokeny, motyw, kontrolki, formularze, nawigację, komunikaty i gotowe bloki, w tym ustawienia konta. `/catalog` pozwala obejrzeć przykłady bez zakładania konta i bez backendu.
+Kanoniczne miejsce to [`src/components/kit/`](src/components/kit). Obejmuje tokeny, motyw, kontrolki, formularze, nawigację, komunikaty i gotowe bloki, w tym ustawienia konta. Strona otwierająca `/` jest jednocześnie instrukcją i żywą prezentacją tych komponentów: działa bez konta i bez backendu, a każdy przykład pokazuje kod, który go tworzy.
+
+Ta sama warstwa jest vendorowana do [T13 Site Kita](https://github.com/t13foundation/T13-Site-Kit) jako identyczne pliki: te same tokeny, te same prymitywy, te same odstępy i rozmiary. [`kit-manifest.json`](kit-manifest.json) zapisuje ich sumy kontrolne, a `bun run check:kit` przerywa pracę, gdy jedna z kopii odjedzie od drugiej. Zmianę w warstwie współdzielonej wprowadza się w obu zestawach, a potem odświeża manifest poleceniem `node scripts/check-kit-parity.mjs --write`.
 
 Podstawowe kontrolki pochodzą z publicznego `untitleduico/react`. [Rejestr pochodzenia](third-party/untitledui-react/SOURCE.md) zapisuje commit `c981a73bcd6b6c68d2a54070f20f020191212828` oraz użyte pliki. Nie wykorzystujemy kodu PRO ani nie przypisujemy jego licencji własnym imitacjom.
 
@@ -215,12 +218,11 @@ To testy API i kodu, nie pełny przeglądarkowy odbiór hostowanego Lovable, rze
 Podstawowe kontrole uruchamia się lokalnie po spójnym pakiecie zmian:
 
 ```sh
-node --experimental-strip-types --test tests/*.test.mjs
-node scripts/check-source-integrity.mjs
-bun run build
-./node_modules/.bin/tsc --noEmit -p tsconfig.json
+bun run verify
 (cd server && bun run typecheck && ./node_modules/.bin/vitest run tests/unit)
 ```
+
+`bun run verify` łączy kontrolę kompletności źródeł, spójności warstwy UI z Site Kitem, ESLint, kontrolę typów, testy reguł i proxy oraz build. Pojedyncze kroki są dostępne jako osobne skrypty w `package.json`.
 
 Integracje wymagają oddzielnej lokalnej bazy `appkit_test`, testowej skrzynki oraz jawnego zezwolenia na czyszczenie danych testowych. Instrukcja jest w [docs/start.md](docs/start.md). CI na `main` jest ręczne; nie uruchamia się po każdym pushu lub PR. Nie usuwamy zabezpieczeń ani testów po to, żeby uzyskać zielony wynik.
 
@@ -228,12 +230,12 @@ Integracje wymagają oddzielnej lokalnej bazy `appkit_test`, testowej skrzynki o
 
 Dalszy zakres nie jest listą funkcji już dostępnych w tej wersji.
 
-| Etap | Zakres |
-|---|---|
-| Domknięcie fundamentu | Weryfikowana zmiana e-maila, usunięcie konta, pełne tłumaczenia, zgody, eksport i retencja, uporządkowanie katalogu i zależności |
-| Moduły produktu | Trwałe zadania, prywatne pliki, udostępnianie i zaproszenia, uprawnienia do zasobów, ograniczona administracja, powiadomienia i pochodzenie materiałów |
-| Klient natywny | Expo / React Native, iOS i Android, logowanie, deep linki, aparat, nagrania, pliki, push i wybrane operacje offline |
-| Rozszerzenia opcjonalne | Organizacje, adapter AI z serwerowymi kluczami i kontrolą kosztów, dobrowolne przekazywanie wybranych materiałów do badań |
+| Etap                    | Zakres                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Domknięcie fundamentu   | Weryfikowana zmiana e-maila, usunięcie konta, pełne tłumaczenia, zgody, eksport i retencja                                                             |
+| Moduły produktu         | Trwałe zadania, prywatne pliki, udostępnianie i zaproszenia, uprawnienia do zasobów, ograniczona administracja, powiadomienia i pochodzenie materiałów |
+| Klient natywny          | Expo / React Native, iOS i Android, logowanie, deep linki, aparat, nagrania, pliki, push i wybrane operacje offline                                    |
+| Rozszerzenia opcjonalne | Organizacje, adapter AI z serwerowymi kluczami i kontrolą kosztów, dobrowolne przekazywanie wybranych materiałów do badań                              |
 
 Web i mobile mają współdzielić kontrakty, walidację, klienta API, tłumaczenia, tokeny i logikę niezależną od platformy. Komponenty React DOM nie stają się automatycznie komponentami React Native. Kod serwerowy nie trafia na urządzenie.
 
@@ -241,11 +243,11 @@ Użyteczność modułów ma być sprawdzana na trzech różnych scenariuszach: *
 
 ## Relacja do innych produktów T13
 
-| Produkt | Odpowiedzialność |
-|---|---|
-| T13 App Kit | Fundament aplikacji React i docelowo klientów natywnych |
-| [T13 Site Kit](https://github.com/t13foundation/T13-Site-Kit) | Strony Astro, opcjonalny CMS, formularze, analityka i standard wdrożenia |
-| T13 Sitecase | Oddzielny projekt panelu realizacji stron, materiałów, dostępów i odbioru |
+| Produkt                                                       | Odpowiedzialność                                                              |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| T13 App Kit                                                   | Fundament aplikacji React i docelowo klientów natywnych                       |
+| [T13 Site Kit](https://github.com/t13foundation/T13-Site-Kit) | Strony TanStack Start, CMS Sanity, formularze, analityka i standard wdrożenia |
+| T13 Sitecase                                                  | Oddzielny projekt panelu realizacji stron, materiałów, dostępów i odbioru     |
 
 Produkty rozwijają się niezależnie. Nie wymagają wspólnego monorepo, konta użytkownika ani jednoczesnego wydania. Można przenosić sprawdzone rozwiązania, ale nie powstaje obowiązek „najpierw ukończyć App Kit, potem budować stronę”.
 

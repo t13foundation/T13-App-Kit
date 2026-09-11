@@ -1,4 +1,39 @@
-# Status — reconciled accounts increment
+# Status
+
+This file records what was actually verified, per increment, newest first.
+An older section is the record of that run and is not restated for later code.
+
+## 2026-09-11 — unified kit foundation
+
+The developer entry point is now one overview route `/` that is both the readme
+and a live presentation of the component catalog; the separate `/catalog` route
+it superseded was removed. The shared UI layer (tokens, primitives, layout,
+navigation and blocks) is vendored into T13 Site Kit as byte-identical files and
+guarded by `kit-manifest.json` plus `bun run check:kit`. Compositions moved off
+raw gray utilities onto the semantic tokens. The unused stock shadcn layer, the
+unused hooks, the Lovable error-reporting module, `components.json` and the 40
+dependencies only they needed were removed.
+
+Local checks on Node 26.7.0 / Bun 1.3.14, all exit 0:
+`node scripts/check-source-integrity.mjs` (28 required files tracked),
+`node scripts/check-kit-parity.mjs` (26 shared files match),
+`bun run lint` (ESLint + Prettier, clean),
+`tsc --noEmit -p tsconfig.json` (full web typecheck),
+`node --experimental-strip-types --test tests/*.test.mjs` (14 passed, 0 failed)
+and `bun run build` (client, SSR and Nitro).
+
+One capability was removed rather than carried over: the old `/catalog` route
+had a PL/EN toggle that switched five labels. The overview page that replaces it
+is Polish only. Full PL/EN remains planned; a five-label toggle was not evidence
+of it. `roadmap.md` was deleted — it duplicated this file and the GitHub issues,
+and its seven items were already delivered by the 2026-09-09 merge below.
+
+The server package, its database and its integration tests were not re-run in
+this increment; no PostgreSQL or SMTP service was started. The verification
+below is the record of the earlier accounts merge and is not evidence for this
+change. No deployment, publication or visibility change.
+
+## 2026-09-09 — reconciled accounts increment
 
 Date: 2026-09-09. Source merge: `8d280484d1c1d764a9890aaf17bfee47ed86d28a`.
 PR #1 is merged and closed. Main and `codex/app-kit-core` were reconciled as
@@ -42,18 +77,18 @@ Environment: Node 22.23.2, Bun 1.4.2, locked TypeScript 5.9.3,
 PostgreSQL 17.11 and a disposable Mailpit SMTP server. No production credentials
 or real customer data were used. Both service containers were removed afterward.
 
-| Check | Actual result |
-| --- | --- |
-| Source integrity | 25 required files present/tracked; no tracked environment files; exit 0 |
-| `node --experimental-strip-types --test tests/*.test.mjs` | 14 passed, 0 failed; exit 0 |
-| Web `bun install --frozen-lockfile` | Passed without changing the lockfile |
-| `bun run build` | Client, SSR and Nitro build passed; exit 0 |
-| `./node_modules/.bin/tsc --noEmit -p tsconfig.json` | Full web typecheck passed; exit 0 |
-| API `bun install --frozen-lockfile` | Passed without changing the lockfile |
-| API `bun run typecheck` | Full API/test-code typecheck passed; exit 0 |
-| `bun run db:migrate` | Existing migrations applied to dedicated appkit_test; exit 0 |
-| API `vitest run` | 3 files, 14 tests passed; exit 0: 8 unit + 6 real PostgreSQL/SMTP integration tests |
-| Final outcome gate | build=success, web_types=success, api_types=success, tests=success |
+| Check                                                     | Actual result                                                                       |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Source integrity                                          | 25 required files present/tracked; no tracked environment files; exit 0             |
+| `node --experimental-strip-types --test tests/*.test.mjs` | 14 passed, 0 failed; exit 0                                                         |
+| Web `bun install --frozen-lockfile`                       | Passed without changing the lockfile                                                |
+| `bun run build`                                           | Client, SSR and Nitro build passed; exit 0                                          |
+| `./node_modules/.bin/tsc --noEmit -p tsconfig.json`       | Full web typecheck passed; exit 0                                                   |
+| API `bun install --frozen-lockfile`                       | Passed without changing the lockfile                                                |
+| API `bun run typecheck`                                   | Full API/test-code typecheck passed; exit 0                                         |
+| `bun run db:migrate`                                      | Existing migrations applied to dedicated appkit_test; exit 0                        |
+| API `vitest run`                                          | 3 files, 14 tests passed; exit 0: 8 unit + 6 real PostgreSQL/SMTP integration tests |
+| Final outcome gate                                        | build=success, web_types=success, api_types=success, tests=success                  |
 
 The six integration tests include the original five account/MFA processes and
 one merged profile/export/session scenario with multiple assertions. They verify

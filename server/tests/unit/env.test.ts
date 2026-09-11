@@ -32,7 +32,9 @@ test("missing secret refuses startup", () => {
 });
 
 test("short secret refuses startup", () => {
-  expect(() => loadEnv({ ...base, BETTER_AUTH_SECRET: "short" } as never)).toThrow(/secret_too_short/);
+  expect(() => loadEnv({ ...base, BETTER_AUTH_SECRET: "short" } as never)).toThrow(
+    /secret_too_short/,
+  );
 });
 
 test("placeholder secret refuses startup", () => {
@@ -42,10 +44,18 @@ test("placeholder secret refuses startup", () => {
 });
 
 test("malformed origin refuses startup", () => {
-  expect(() => loadEnv({ ...base, TRUSTED_ORIGINS: "localhost:8080" } as never)).toThrow(/TRUSTED_ORIGINS/);
-  expect(() => loadEnv({ ...base, TRUSTED_ORIGINS: "https://*.example.com" } as never)).toThrow(/TRUSTED_ORIGINS/);
-  expect(() => loadEnv({ ...base, APP_URL: "https://user:pw@example.com" } as never)).toThrow(/APP_URL/);
-  expect(() => loadEnv({ ...base, APP_URL: "https://example.com/app?x=1" } as never)).toThrow(/APP_URL/);
+  expect(() => loadEnv({ ...base, TRUSTED_ORIGINS: "localhost:8080" } as never)).toThrow(
+    /TRUSTED_ORIGINS/,
+  );
+  expect(() => loadEnv({ ...base, TRUSTED_ORIGINS: "https://*.example.com" } as never)).toThrow(
+    /TRUSTED_ORIGINS/,
+  );
+  expect(() => loadEnv({ ...base, APP_URL: "https://user:pw@example.com" } as never)).toThrow(
+    /APP_URL/,
+  );
+  expect(() => loadEnv({ ...base, APP_URL: "https://example.com/app?x=1" } as never)).toThrow(
+    /APP_URL/,
+  );
 });
 
 test("production requires https auth url", () => {
@@ -53,7 +63,9 @@ test("production requires https auth url", () => {
 });
 
 test("client label never leaks the raw user agent", () => {
-  expect(clientLabel("Mozilla/5.0 (Macintosh; Intel Mac OS X) Chrome/120 Safari/537")).toBe("Chrome / macOS");
+  expect(clientLabel("Mozilla/5.0 (Macintosh; Intel Mac OS X) Chrome/120 Safari/537")).toBe(
+    "Chrome / macOS",
+  );
   expect(clientLabel(null)).toBe("Nieznane urządzenie");
 });
 
@@ -65,15 +77,23 @@ test("destructive test guard refuses anything but a local appkit_test database",
   };
   expect(assertResettableTestDatabase(ok as never).pathname).toBe("/appkit_test");
 
-  expect(() => assertResettableTestDatabase({ ...ok, NODE_ENV: "development" } as never)).toThrow(/NODE_ENV/);
-  expect(() => assertResettableTestDatabase({ ...ok, ALLOW_TEST_DATABASE_RESET: "" } as never)).toThrow(
-    /ALLOW_TEST_DATABASE_RESET/,
+  expect(() => assertResettableTestDatabase({ ...ok, NODE_ENV: "development" } as never)).toThrow(
+    /NODE_ENV/,
   );
+  expect(() =>
+    assertResettableTestDatabase({ ...ok, ALLOW_TEST_DATABASE_RESET: "" } as never),
+  ).toThrow(/ALLOW_TEST_DATABASE_RESET/);
   // The development database must never be truncated.
   expect(() =>
-    assertResettableTestDatabase({ ...ok, DATABASE_URL: "postgres://postgres@127.0.0.1:5433/appkit" } as never),
+    assertResettableTestDatabase({
+      ...ok,
+      DATABASE_URL: "postgres://postgres@127.0.0.1:5433/appkit",
+    } as never),
   ).toThrow(/refusing database 'appkit'/);
   expect(() =>
-    assertResettableTestDatabase({ ...ok, DATABASE_URL: "postgres://postgres@db.example.com/appkit_test" } as never),
+    assertResettableTestDatabase({
+      ...ok,
+      DATABASE_URL: "postgres://postgres@db.example.com/appkit_test",
+    } as never),
   ).toThrow(/non-local/);
 });
