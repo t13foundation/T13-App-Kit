@@ -10,9 +10,24 @@ export type AlertTone = "info" | "success" | "error";
  * role, never by color alone, so the kit stays white-label and accessible.
  */
 const tones = {
-  info: { icon: InfoCircle, ring: "ring-secondary", surface: "bg-secondary" },
-  success: { icon: CheckCircle, ring: "ring-secondary", surface: "bg-primary" },
-  error: { icon: AlertCircle, ring: "ring-primary", surface: "bg-primary" },
+  info: {
+    icon: InfoCircle,
+    ring: "ring-secondary",
+    surface: "bg-secondary",
+    mark: "text-fg-quaternary",
+  },
+  success: {
+    icon: CheckCircle,
+    ring: "ring-secondary",
+    surface: "bg-primary",
+    mark: "text-fg-success-secondary",
+  },
+  error: {
+    icon: AlertCircle,
+    ring: "ring-primary",
+    surface: "bg-primary",
+    mark: "text-fg-error-secondary",
+  },
 } as const;
 
 export function Alert({
@@ -26,7 +41,7 @@ export function Alert({
   children?: ReactNode;
   className?: string;
 }) {
-  const { icon: Icon, ring, surface } = tones[tone];
+  const { icon: Icon, ring, surface, mark } = tones[tone];
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
