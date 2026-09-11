@@ -26,7 +26,7 @@ function ForgotPasswordPage() {
       title="Odzyskiwanie hasła"
       description="Wyślemy link do ustawienia nowego hasła, jeśli konto istnieje."
       footer={
-        <Link to="/sign-in" className="font-medium text-gray-900 underline">
+        <Link to="/sign-in" className="font-medium text-primary underline">
           Wróć do logowania
         </Link>
       }

@@ -32,7 +32,9 @@ export function assertResettableTestDatabase(source: NodeJS.ProcessEnv = process
   }
   const database = url.pathname.replace(/^\//, "");
   if (database !== REQUIRED_DATABASE) {
-    throw new Error(`test_database_guard: refusing database '${database}', expected '${REQUIRED_DATABASE}'`);
+    throw new Error(
+      `test_database_guard: refusing database '${database}', expected '${REQUIRED_DATABASE}'`,
+    );
   }
   return url;
 }

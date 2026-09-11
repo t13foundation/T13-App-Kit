@@ -84,9 +84,7 @@ const envSchema = z.object({
   /** Comma separated proxy addresses; empty means "no proxy is trusted". */
   TRUSTED_PROXIES: proxyList,
 
-  DATABASE_URL: z
-    .string()
-    .refine((v) => /^postgres(ql)?:\/\//.test(v), "must_be_postgres"),
+  DATABASE_URL: z.string().refine((v) => /^postgres(ql)?:\/\//.test(v), "must_be_postgres"),
 
   BETTER_AUTH_SECRET: z
     .string()

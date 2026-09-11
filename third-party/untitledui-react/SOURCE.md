@@ -40,5 +40,11 @@ no marketing pages, no image/logo assets, no demo or story files.
    override maps Tailwind's blue-tinted `gray` ramp onto a strictly neutral
    ramp (R = G = B).
 
-Everything under `src/components/kit/{navigation,blocks}` and `index.ts` is
-original code written for this kit on top of the vendored primitives.
+4. Vendored files are excluded from Prettier and from the repository's
+   formatting/lint rules (`.prettierignore`, `eslint.config.js`) so they remain
+   byte-identical to upstream and stay diffable against it.
+
+Everything under `src/components/kit/{layout,navigation,blocks}`, plus
+`feedback/alert.tsx`, `feedback/badge.tsx` and `index.ts`, is original code
+written for this kit on top of the vendored primitives. The same vendored subset
+and the same original layer are kept identical in T13 Site Kit.

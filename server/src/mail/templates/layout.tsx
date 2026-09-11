@@ -18,7 +18,9 @@ export function EmailLayout({
     <Html lang="pl">
       <Head />
       <Preview>{preview}</Preview>
-      <Body style={{ backgroundColor: "#ffffff", color: "#101828", fontFamily: "Arial, sans-serif" }}>
+      <Body
+        style={{ backgroundColor: "#ffffff", color: "#101828", fontFamily: "Arial, sans-serif" }}
+      >
         <Container style={{ maxWidth: "560px", padding: "32px 24px" }}>
           <Text style={{ fontSize: "14px", color: "#475467", margin: "0 0 24px" }}>{appName}</Text>
           <Section>{children}</Section>

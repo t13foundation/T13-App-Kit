@@ -30,7 +30,7 @@ function ResetPasswordPage() {
       title="Ustaw nowe hasło"
       description="Po zmianie hasła wszystkie aktywne sesje zostaną wylogowane."
       footer={
-        <Link to="/sign-in" className="font-medium text-gray-900 underline">
+        <Link to="/sign-in" className="font-medium text-primary underline">
           Wróć do logowania
         </Link>
       }

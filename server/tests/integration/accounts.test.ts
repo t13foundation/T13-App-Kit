@@ -130,7 +130,11 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
   expect(String(setCookies)).toContain("HttpOnly");
 
   // --- /me -----------------------------------------------------------------
-  const me = await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jar } });
+  const me = await app.inject({
+    method: "GET",
+    url: "/api/me",
+    headers: { origin: ORIGIN, cookie: jar },
+  });
   expect(me.statusCode).toBe(200);
   expect(me.json()).toMatchObject({ email: EMAIL, emailVerified: true, locale: "pl" });
 
@@ -142,7 +146,11 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
     payload: { locale: "en", timezone: "Europe/Berlin" },
   });
   expect(prefs.statusCode).toBe(200);
-  const meAfter = await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jar } });
+  const meAfter = await app.inject({
+    method: "GET",
+    url: "/api/me",
+    headers: { origin: ORIGIN, cookie: jar },
+  });
   expect(meAfter.json()).toMatchObject({ locale: "en", timezone: "Europe/Berlin" });
 
   const badPrefs = await app.inject({
@@ -182,7 +190,11 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
     headers: { origin: ORIGIN, cookie: jar },
   });
   expect(logout.statusCode).toBe(200);
-  const afterLogout = await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jar } });
+  const afterLogout = await app.inject({
+    method: "GET",
+    url: "/api/me",
+    headers: { origin: ORIGIN, cookie: jar },
+  });
   expect(afterLogout.statusCode).toBe(401);
 
   // --- login now requires the second factor --------------------------------
@@ -195,7 +207,11 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
   expect(login2.statusCode).toBe(200);
   expect(login2.json()).toMatchObject({ twoFactorRedirect: true });
   let jarA = mergeCookies("", login2);
-  const noSessionYet = await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarA } });
+  const noSessionYet = await app.inject({
+    method: "GET",
+    url: "/api/me",
+    headers: { origin: ORIGIN, cookie: jarA },
+  });
   expect(noSessionYet.statusCode).toBe(401);
 
   const second = await app.inject({
@@ -207,7 +223,10 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
   });
   expect(second.statusCode).toBe(200);
   jarA = mergeCookies(jarA, second);
-  expect((await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarA } })).statusCode).toBe(200);
+  expect(
+    (await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarA } }))
+      .statusCode,
+  ).toBe(200);
 
   // --- a second, independent session ---------------------------------------
   const login3 = await app.inject({
@@ -224,10 +243,17 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
     payload: { code: totp.generate() },
   });
   jarB = mergeCookies(jarB, second2);
-  expect((await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarB } })).statusCode).toBe(200);
+  expect(
+    (await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarB } }))
+      .statusCode,
+  ).toBe(200);
 
   // --- session list contains no private data -------------------------------
-  const sessions = await app.inject({ method: "GET", url: "/api/me/sessions", headers: { origin: ORIGIN, cookie: jarB } });
+  const sessions = await app.inject({
+    method: "GET",
+    url: "/api/me/sessions",
+    headers: { origin: ORIGIN, cookie: jarB },
+  });
   expect(sessions.statusCode).toBe(200);
   const body = sessions.json() as { sessions: { current: boolean; client: string }[] };
   expect(body.sessions.length).toBeGreaterThanOrEqual(2);
@@ -245,8 +271,14 @@ test("full account vertical: sign-up -> verify -> login -> preferences -> MFA ->
     headers: { origin: ORIGIN, cookie: jarB },
   });
   expect(revoke.statusCode).toBe(200);
-  expect((await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarA } })).statusCode).toBe(401);
-  expect((await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarB } })).statusCode).toBe(200);
+  expect(
+    (await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarA } }))
+      .statusCode,
+  ).toBe(401);
+  expect(
+    (await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jarB } }))
+      .statusCode,
+  ).toBe(200);
 }, 120_000);
 
 test("password reset goes through email and still requires the second factor", async () => {
@@ -319,23 +351,40 @@ test("foreign origin is rejected and disabled library paths stay unreachable", a
 
   // Direct revoke endpoints would bypass the freshness requirement.
   for (const path of ["/api/auth/revoke-sessions", "/api/auth/revoke-other-sessions/"]) {
-    const res = await app.inject({ method: "POST", url: path, headers: { origin: ORIGIN }, payload: {} });
+    const res = await app.inject({
+      method: "POST",
+      url: path,
+      headers: { origin: ORIGIN },
+      payload: {},
+    });
     expect(res.statusCode).toBe(404);
   }
 
   for (const path of ["/api/auth/delete-user", "/api/auth/two-factor/view-backup-codes"]) {
-    const res = await app.inject({ method: "POST", url: path, headers: { origin: ORIGIN }, payload: {} });
+    const res = await app.inject({
+      method: "POST",
+      url: path,
+      headers: { origin: ORIGIN },
+      payload: {},
+    });
     expect(res.statusCode).toBeGreaterThanOrEqual(400);
     expect(res.statusCode).toBeLessThan(500);
   }
 
   // Anonymous access to every private endpoint is exactly 401.
   for (const url of ["/api/me", "/api/me/sessions"]) {
-    expect((await app.inject({ method: "GET", url, headers: { origin: ORIGIN } })).statusCode).toBe(401);
+    expect((await app.inject({ method: "GET", url, headers: { origin: ORIGIN } })).statusCode).toBe(
+      401,
+    );
   }
   expect(
-    (await app.inject({ method: "POST", url: "/api/me/sessions/revoke-others", headers: { origin: ORIGIN } }))
-      .statusCode,
+    (
+      await app.inject({
+        method: "POST",
+        url: "/api/me/sessions/revoke-others",
+        headers: { origin: ORIGIN },
+      })
+    ).statusCode,
   ).toBe(401);
 });
 
@@ -401,7 +450,11 @@ test("another account never sees the first account's data", async () => {
   expect(login.statusCode).toBe(200);
   const jar = mergeCookies("", login);
 
-  const me = await app.inject({ method: "GET", url: "/api/me", headers: { origin: ORIGIN, cookie: jar } });
+  const me = await app.inject({
+    method: "GET",
+    url: "/api/me",
+    headers: { origin: ORIGIN, cookie: jar },
+  });
   expect(me.statusCode).toBe(200);
   expect(me.json()).toMatchObject({ email: OTHER_EMAIL });
   expect(me.body).not.toContain(EMAIL);

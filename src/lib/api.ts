@@ -34,24 +34,42 @@ export class ApiRequestError extends Error {
   readonly code: string;
   constructor(status: number, code: string) {
     super(readableError(code, status));
-    this.name = "ApiRequestError"; this.status = status; this.code = code;
+    this.name = "ApiRequestError";
+    this.status = status;
+    this.code = code;
   }
 }
-export async function api<T>(path: string, options: {
-  method?: "GET" | "POST" | "PUT" | "DELETE"; body?: unknown; signal?: AbortSignal;
-} = {}): Promise<T> {
+export async function api<T>(
+  path: string,
+  options: {
+    method?: "GET" | "POST" | "PUT" | "DELETE";
+    body?: unknown;
+    signal?: AbortSignal;
+  } = {},
+): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`/api${path}`, {
-      method: options.method ?? "GET", credentials: "same-origin", cache: "no-store",
-      headers: { accept: "application/json", ...(options.body !== undefined ? { "content-type": "application/json" } : {}) },
-      ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}), signal: options.signal,
+      method: options.method ?? "GET",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: {
+        accept: "application/json",
+        ...(options.body !== undefined ? { "content-type": "application/json" } : {}),
+      },
+      ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}),
+      signal: options.signal,
     });
-  } catch { throw new ApiRequestError(0, "network_unavailable"); }
+  } catch {
+    throw new ApiRequestError(0, "network_unavailable");
+  }
   const payload: unknown = await response.json().catch(() => null);
   if (!response.ok) {
     const error = payload as { error?: { code?: string }; code?: string } | null;
-    throw new ApiRequestError(response.status, error?.error?.code ?? error?.code ?? "request_failed");
+    throw new ApiRequestError(
+      response.status,
+      error?.error?.code ?? error?.code ?? "request_failed",
+    );
   }
   if (payload === null) throw new ApiRequestError(502, "invalid_response");
   return payload as T;

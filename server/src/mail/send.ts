@@ -15,9 +15,7 @@ function getTransport(): Transporter {
       host: cfg.SMTP_HOST,
       port: cfg.SMTP_PORT,
       secure: cfg.SMTP_SECURE,
-      ...(cfg.SMTP_USER
-        ? { auth: { user: cfg.SMTP_USER, pass: cfg.SMTP_PASSWORD ?? "" } }
-        : {}),
+      ...(cfg.SMTP_USER ? { auth: { user: cfg.SMTP_USER, pass: cfg.SMTP_PASSWORD ?? "" } } : {}),
     });
   }
   return transporter;

@@ -1,23 +1,32 @@
 @import "tailwindcss" source(none);
-@import "tw-animate-css";
 @import "./components/kit/tokens/theme.css";
 @import "./components/kit/themes/neutral.css";
 @source "../src";
 @plugin "tailwindcss-react-aria-components";
 
-/* One semantic system: do not overlay shadcn's --color-primary on Untitled UI. */
-@theme inline {
-  --color-background: #fff;
-  --color-foreground: #171717;
-  --color-muted-foreground: #525252;
-  --color-border: #e5e5e5;
-}
 @layer base {
-  html { color-scheme: light; }
-  body { margin: 0; background: #fff; color: #171717; font-family: var(--font-body); }
-  * { border-color: #e5e5e5; }
-  :focus-visible { outline-offset: 3px; }
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+  }
+
+  :focus-visible {
+    outline-offset: 3px;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
