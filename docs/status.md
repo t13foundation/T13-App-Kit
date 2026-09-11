@@ -1,4 +1,33 @@
-# Status — reconciled accounts increment
+# Status
+
+This file records what was actually verified, per increment, newest first.
+An older section is the record of that run and is not restated for later code.
+
+## 2026-09-11 — unified kit foundation
+
+The developer entry point is now one overview route `/` that is both the readme
+and a live presentation of the component catalog; the separate `/catalog` route
+it superseded was removed. The shared UI layer (tokens, primitives, layout,
+navigation and blocks) is vendored into T13 Site Kit as byte-identical files and
+guarded by `kit-manifest.json` plus `bun run check:kit`. Compositions moved off
+raw gray utilities onto the semantic tokens. The unused stock shadcn layer, the
+unused hooks, the Lovable error-reporting module, `components.json` and the 40
+dependencies only they needed were removed.
+
+Local checks on Node 26.7.0 / Bun 1.3.14, all exit 0:
+`node scripts/check-source-integrity.mjs` (28 required files tracked),
+`node scripts/check-kit-parity.mjs` (26 shared files match),
+`bun run lint` (ESLint + Prettier, clean),
+`tsc --noEmit -p tsconfig.json` (full web typecheck),
+`node --experimental-strip-types --test tests/*.test.mjs` (14 passed, 0 failed)
+and `bun run build` (client, SSR and Nitro).
+
+The server package, its database and its integration tests were not re-run in
+this increment; no PostgreSQL or SMTP service was started. The verification
+below is the record of the earlier accounts merge and is not evidence for this
+change. No deployment, publication or visibility change.
+
+## 2026-09-09 — reconciled accounts increment
 
 Date: 2026-09-09. Source merge: `8d280484d1c1d764a9890aaf17bfee47ed86d28a`.
 PR #1 is merged and closed. Main and `codex/app-kit-core` were reconciled as

@@ -6,7 +6,9 @@
     "ui": {
       "status": "enabled",
       "card": "docs/modules/ui.md",
-      "source": "third-party/untitledui-react/SOURCE.md"
+      "source": "third-party/untitledui-react/SOURCE.md",
+      "shared-with": "t13-site-kit",
+      "parity": "kit-manifest.json"
     },
     "accounts": {
       "status": "enabled",

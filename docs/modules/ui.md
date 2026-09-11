@@ -11,34 +11,54 @@ list of copied files are kept in `third-party/untitledui-react/` — see
 `LICENSE` and `SOURCE.md`. Nothing from the PRO offering is used, and no
 imitation is labelled as Untitled UI.
 
+Vendored files are excluded from Prettier and from the repository lint rules so
+they stay byte-identical to upstream and remain diffable against it.
+
 ## Structure
 
 ```
 tokens/      upstream design tokens, untouched
 themes/      white-label override: pure white, strictly neutral R=G=B ramp
+utils/       class merging helpers
 controls/    button, checkbox, toggle
 forms/       input, label, hint, textarea, native select, pin input, form
-navigation/  application header
-feedback/    tooltip, alert
-blocks/      auth card, page section
+feedback/    alert, badge, tooltip
+layout/      the single page measure shared by every screen
+navigation/  shell navigation and footer
+blocks/      auth card, account settings, page header, page section, panel,
+             code block, spec list, showcase
 ```
 
-`src/components/kit/index.ts` is the only import surface used by screens.
-`/catalog` renders documented live examples and needs no account and no
-backend.
+`src/components/kit/index.ts` is the only import surface used by screens. The
+overview route `/` is both the readme and a live presentation of this catalog;
+it needs no account and no backend.
+
+## Shared with T13 Site Kit
+
+Everything except `forms/pin-input.tsx` and `blocks/{auth-card,account-settings}`
+is vendored into T13 Site Kit as identical files, so the two kits render the
+same controls at the same sizes. `kit-manifest.json` records the SHA-256 of each
+shared file and `bun run check:kit` fails when a copy drifts. Change the shared
+layer in both kits, then refresh the manifest with
+`node scripts/check-kit-parity.mjs --write`.
 
 ## Look
 
 White `#FFFFFF` background, neutral grays, near-black primary buttons. No brand
-colors, gradients, illustrations, logos or marketing content.
+colors, gradients, illustrations, logos or marketing content. Alert tone is
+carried by an icon, the wording and the ARIA role, never by color alone.
+
+Compositions use the semantic token names (`text-primary`, `bg-secondary`,
+`border-secondary`) rather than raw gray steps, so one theme change restyles the
+whole kit.
 
 ## Tests
 
-Covered by `bun run build` and `bunx tsgo --noEmit`, plus a browser check of
-`/`, `/catalog` and `/sign-in`.
+Covered by `bun run verify`, which includes the build, the full typecheck, the
+shared-layer parity check and ESLint.
 
 ## Removing / restoring
 
 Components are plain files with no runtime registry. Delete what a project does
-not use and keep `index.ts` in sync; restore by copying the files back from a
-previous version or from the pinned upstream commit.
+not use and keep `index.ts` and `kit-manifest.json` in sync; restore by copying
+the files back from a previous version or from the pinned upstream commit.

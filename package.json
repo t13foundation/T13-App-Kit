@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "check:source": "node scripts/check-source-integrity.mjs",
+    "check:kit": "node scripts/check-kit-parity.mjs",
+    "verify": "bun run check:source && bun run check:kit && bun run lint && bun run typecheck && node --experimental-strip-types --test tests/*.test.mjs && bun run build"
   },
   "overrides": {
     "rolldown": "1.2.1"
