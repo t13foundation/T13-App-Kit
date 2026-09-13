@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import {
@@ -19,8 +18,6 @@ import {
   Toggle,
 } from "@/components/kit";
 import { appConfig, kitInfo } from "@/app.config";
-import { getStatus } from "@/lib/account";
-import { ApiRequestError } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,27 +36,25 @@ const structure = [
   },
   {
     term: "src/routes/",
-    description: "Trasy TanStack Start: przegląd, ekrany konta i proxy /api.",
+    description: "Trasy TanStack Start: przegląd, prywatne Notes i zachowane ekrany legacy.",
   },
   {
     term: "src/lib/",
-    description: "Klient API, klient Better Auth i serwerowe proxy o stałym adresie.",
+    description: "Oficjalny klient Supabase; klient i proxy legacy pozostają odizolowane.",
   },
-  { term: "server/", description: "Fastify + Better Auth + PostgreSQL; osobny graf zależności." },
+  { term: "server/", description: "Zachowany backend legacy; nie jest wymagany przez Notes." },
   { term: "shared/", description: "Kontrakty Zod współdzielone przez aplikację i API." },
   { term: "docs/", description: "Karty modułów, instrukcja startu i zapis weryfikacji." },
 ];
 
 const boundaries = [
-  "Wdrożenie produkcyjne, hosting, domena i realna poczta wychodząca nie są częścią tego wydania.",
+  "Bieżący przyrost jest przeznaczony do demonstracji na wydzielonym środowisku testowym.",
   "Interfejs jest po polsku; ustawienie regionalne zmienia formaty dat, nie tłumaczenia.",
   "Pliki, organizacje, role, płatności i moduł AI pozostają zaplanowane, nie dostarczone.",
-  "Eksport konta obejmuje profil i preferencje wywołującego — nigdy sekretów ani cudzych danych.",
+  "Ustawienia konta i inne funkcje legacy nie są migrowane w tym przyroście.",
 ];
 
 function Overview() {
-  const status = useQuery({ queryKey: ["status"], queryFn: getStatus, retry: false });
-
   return (
     <>
       <PageHeader
@@ -75,8 +70,8 @@ function Overview() {
             <Button href="#komponenty" color="secondary">
               Zobacz komponenty
             </Button>
-            <Button href="/account" color="tertiary">
-              Ekran konta
+            <Button href="/notes" color="tertiary">
+              Prywatne notatki
             </Button>
           </>
         }
@@ -92,7 +87,7 @@ function Overview() {
             {
               term: "Uwierzytelnianie",
               description:
-                "Better Auth po stronie serwera i oficjalny klient po stronie aplikacji. Bez własnego protokołu logowania.",
+                "Supabase Auth: rejestracja, kod potwierdzający, logowanie i wylogowanie.",
             },
             {
               term: "Interfejs",
@@ -102,7 +97,7 @@ function Overview() {
             {
               term: "Granica API",
               description:
-                "Przeglądarka nie zna adresu backendu. Cały ruch idzie przez serwerowe proxy o stałym adresie docelowym.",
+                "Notes korzysta z publicznego klucza Supabase. Baza niezależnie sprawdza tożsamość, potwierdzony adres i właściciela danych.",
             },
             {
               term: "Marka",
@@ -118,51 +113,31 @@ function Overview() {
         title="Szybki start"
         description="Cztery kroki do działającej aplikacji z lokalną bazą danych i lokalną skrzynką pocztową."
       >
-        <CodeBlock caption="1 — usługi lokalne (PostgreSQL na 5433, Mailpit na 8025)">
-          docker compose up -d
+        <CodeBlock caption="1 — przypięte narzędzia i zależności">
+          {"# Node 22.16.0, pnpm 10.34.5\npnpm install --frozen-lockfile"}
         </CodeBlock>
-        <CodeBlock caption="2 — zależności aplikacji i API (osobne grafy)">
+        <CodeBlock caption="2 — konfiguracja (zachowaj istniejący plik)">
           {
-            "bun install --frozen-lockfile\ncd server && bun install --frozen-lockfile && bun run db:migrate"
+            "test -e .env || cp .env.example .env\n# Ustaw publiczny URL i klucz Supabase według docs/supabase.md"
           }
         </CodeBlock>
-        <CodeBlock caption="3 — konfiguracja (pliki .env pozostają poza repozytorium)">
-          {"cp .env.example .env\ncp server/.env.example server/.env"}
-        </CodeBlock>
-        <CodeBlock caption="4 — uruchomienie API i aplikacji">
+        <CodeBlock caption="3 — lokalny Supabase i istniejąca migracja">
           {
-            "cd server && bun run dev   # http://127.0.0.1:3001\nbun run dev               # http://127.0.0.1:3000"
+            "pnpm exec supabase start --exclude storage-api,imgproxy,studio,postgres-meta\npnpm exec supabase migration up --local"
           }
         </CodeBlock>
-
+        <CodeBlock caption="4 — uruchomienie aplikacji">
+          {"pnpm dev --host 127.0.0.1 --port 4311 --strictPort"}
+        </CodeBlock>
         <Panel
-          title="Połączenie z API"
-          description="Sprawdzane na żywo przez proxy /api. Katalog komponentów działa również bez backendu."
+          title="Konto i prywatne dane"
+          description="Zarejestruj konto, potwierdź kod z wiadomości i utwórz własną notatkę."
         >
-          {status.isPending ? (
-            <p role="status" className="text-sm text-tertiary">
-              Sprawdzanie połączenia…
-            </p>
-          ) : status.isError ? (
-            <Alert tone="error" title="Funkcje konta są niedostępne">
-              {status.error instanceof ApiRequestError
-                ? status.error.message
-                : "Nie można sprawdzić połączenia z backendem."}
-            </Alert>
-          ) : (
-            <Alert tone="success" title="Połączono z API">
-              Usługa konta odpowiada, a baza danych jest dostępna.
-            </Alert>
-          )}
-          <div className="flex flex-wrap gap-3">
-            <Button href="/sign-in">Zaloguj się</Button>
-            <Button href="/sign-up" color="secondary">
-              Utwórz konto
-            </Button>
-            <Button href="/account" color="tertiary">
-              Ustawienia konta
-            </Button>
-          </div>
+          <p className="text-sm text-tertiary">
+            Pełna instrukcja przygotowania bazy i lokalnej poczty: docs/supabase.md. Notes nie
+            wymaga uruchamiania backendu legacy.
+          </p>
+          <Button href="/notes">Otwórz prywatne notatki</Button>
         </Panel>
       </PageSection>
 
@@ -347,10 +322,10 @@ function ComponentsSection() {
       <Showcase
         name="CodeBlock"
         description="Polecenie lub fragment kodu. Przewija się w poziomie, więc komenda nigdy nie łamie się po cichu."
-        code={'<CodeBlock caption="instalacja">bun install</CodeBlock>'}
+        code={'<CodeBlock caption="instalacja">pnpm install</CodeBlock>'}
       >
         <CodeBlock className="w-full" caption="instalacja">
-          bun install --frozen-lockfile
+          pnpm install --frozen-lockfile
         </CodeBlock>
       </Showcase>
 

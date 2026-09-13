@@ -6,6 +6,8 @@ T13 App Kit łączy kod aplikacji React, backend TypeScript, mechanizmy kont i b
 
 Punkt wyjścia jest white label: białe tło, neutralne komponenty i konfigurowalna nazwa produktu. Korzystanie z zestawu nie wymaga nadawania aplikacji wyglądu T13 ani podłączania jej do centralnej usługi T13.
 
+**Current integration:** Supabase signup, six-digit email confirmation, login/logout and private Notes are available at `/notes` for the dedicated demo. Use Node 22.16.0, pnpm 10.34.5 and [the current startup guide](docs/start.md). The preserved Better Auth backend and account screens are isolated legacy code; their users and sessions are not migrated. Hosted acceptance remains with the lead.
+
 **Obecna wersja: `0.1.0-dev`.** Dostarczony i sprawdzony jest przyrost webowych kont i ustawień. Cały plan App Kita, w tym mobile i pozostałe moduły, nie jest jeszcze ukończonym wydaniem 1.0. Zakres wykonanych kontroli znajduje się w [raporcie stanu](docs/status.md), a wybrane moduły w [manifeście](t13.project.json).
 
 ## Dlaczego powstaje
@@ -112,44 +114,24 @@ kit-manifest.json        sumy kontrolne plików współdzielonych z Site Kitem
  AGENTS.md               krótka instrukcja dla agenta
 ```
 
-## Szybki start
+## Current quickstart
 
-Potrzebne są Node.js 22.16+, Bun do odtworzenia zapisanych zależności oraz Docker Compose albo równoważny lokalny PostgreSQL i SMTP. Ostatnia pełna kontrola używała Node 22.23.2 i Bun 1.4.2; szczegóły są w [raporcie](docs/status.md).
-
-W katalogu sklonowanego repozytorium uruchom usługi developerskie:
+Use Node 22.16.0, pnpm 10.34.5 and Docker. The root uses one pnpm lockfile and the seven-day package-age / explicit dependency-build policy in `pnpm-workspace.yaml`.
 
 ```sh
-docker compose -f compose.yaml up -d
+pnpm install --frozen-lockfile
+test -e .env || cp .env.example .env
 ```
 
-Następnie przygotuj API. Kopiowanie przykładu dotyczy pierwszego uruchomienia — nie nadpisuj istniejącej konfiguracji:
+Set only the public Supabase URL and publishable/legacy anon key in the ignored `.env`. Follow [docs/supabase.md](docs/supabase.md) to inspect Docker and start the isolated `t13-app-kit-demo` project on ports 55321–55324, apply the existing migration without a reset, and generate types.
 
 ```sh
-cd server
-bun install --frozen-lockfile
-cp .env.example .env
-openssl rand -hex 32
+pnpm dev --host 127.0.0.1 --port 4311 --strictPort
 ```
 
-Wpisz wygenerowaną wartość do `BETTER_AUTH_SECRET` w lokalnym `server/.env`. Dla standardowego środowiska ustaw `APP_URL`, `AUTH_URL` i `TRUSTED_ORIGINS` na `http://localhost:8080`. To publiczny adres webu, nie wewnętrzny port API. Przykład zawiera lokalne połączenia PostgreSQL i Mailpit.
+Open `http://127.0.0.1:4311/notes`; local confirmation mail is captured at `http://127.0.0.1:55324`. The Notes flow does not require Fastify or Better Auth. Missing both public variables leaves the overview usable; partial or unsafe values fail explicitly. Never put a privileged key in `VITE_*`.
 
-Z katalogu `server/`:
-
-```sh
-bun --env-file=.env run db:migrate
-bun --env-file=.env run dev
-```
-
-W drugim terminalu, z głównego katalogu repozytorium:
-
-```sh
-bun install --frozen-lockfile
-API_INTERNAL_URL=http://127.0.0.1:3001 bun run dev -- --port 8080
-```
-
-Aplikacja działa pod `http://localhost:8080`, strona otwierająca z instrukcją i prezentacją komponentów pod `/`, a skrzynka Mailpit pod `http://127.0.0.1:8025`. Rejestracja wymaga potwierdzenia linku z wiadomości testowej.
-
-`API_INTERNAL_URL` jest zmienną procesu serwerowego. Nie dodawaj jej do publicznej konfiguracji `VITE_*`. Bez niej operacje konta zwracają jawny błąd. Pełna instrukcja, w tym oddzielna baza testowa: [docs/start.md](docs/start.md).
+The older architecture/module descriptions above document the preserved legacy account implementation. Its separate Bun dependency graph remains under `server/`; [docs/start.md](docs/start.md) contains the isolated rollback instructions. Legacy identities are not migrated to Supabase. Hosted demonstration and final acceptance remain with the lead.
 
 ## Praca z AI i Lovable
 
@@ -218,11 +200,11 @@ To testy API i kodu, nie pełny przeglądarkowy odbiór hostowanego Lovable, rze
 Podstawowe kontrole uruchamia się lokalnie po spójnym pakiecie zmian:
 
 ```sh
-bun run verify
+pnpm verify
 (cd server && bun run typecheck && ./node_modules/.bin/vitest run tests/unit)
 ```
 
-`bun run verify` łączy kontrolę kompletności źródeł, spójności warstwy UI z Site Kitem, ESLint, kontrolę typów, testy reguł i proxy oraz build. Pojedyncze kroki są dostępne jako osobne skrypty w `package.json`.
+`pnpm verify` łączy kontrolę kompletności źródeł, spójności warstwy UI z Site Kitem, ESLint, kontrolę typów, testy reguł i proxy oraz build. Pojedyncze kroki są dostępne jako osobne skrypty w `package.json`.
 
 Integracje wymagają oddzielnej lokalnej bazy `appkit_test`, testowej skrzynki oraz jawnego zezwolenia na czyszczenie danych testowych. Instrukcja jest w [docs/start.md](docs/start.md). CI na `main` jest ręczne; nie uruchamia się po każdym pushu lub PR. Nie usuwamy zabezpieczeń ani testów po to, żeby uzyskać zielony wynik.
 

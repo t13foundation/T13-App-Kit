@@ -1,0 +1,3 @@
+-- No shared accounts, demo passwords or RLS-bypassing seed inserts.
+-- tests/supabase-smoke.mjs creates disposable users and notes through the public API
+-- in an explicitly confirmed local synthetic environment only.

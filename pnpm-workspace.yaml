@@ -1,0 +1,10 @@
+packages:
+  - "."
+# server/ remains an isolated legacy rollback target.
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+minimumReleaseAgeExcludePrune: true
+strictDepBuilds: true
+allowBuilds:
+  esbuild: true
+  supabase: true

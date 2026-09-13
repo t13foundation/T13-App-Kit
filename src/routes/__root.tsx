@@ -14,7 +14,7 @@ import appCss from "@/styles.css?url";
 
 const navLinks = [
   { to: "/", label: "Przegląd" },
-  { to: "/account", label: "Konto" },
+  { to: "/notes", label: "Notatki" },
 ];
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({

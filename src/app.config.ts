@@ -7,7 +7,7 @@
  */
 export const appConfig = {
   name: "App",
-  description: "Konto użytkownika, bezpieczeństwo i ustawienia.",
+  description: "Konto użytkownika i prywatne notatki.",
   locales: ["pl", "en"] as const,
   defaultLocale: "pl" as const,
 } as const;
@@ -19,5 +19,5 @@ export const kitInfo = {
   title: "Startowy zestaw aplikacji z kontem użytkownika",
   summary:
     "Biała aplikacja TanStack Start z gotowym uwierzytelnianiem, ekranem konta i jedną warstwą komponentów. Przeznaczona do rozwinięcia w produkt, nie do wdrożenia w obecnej postaci.",
-  stack: ["MIT", "TanStack Start", "Untitled UI", "Better Auth", "PostgreSQL"],
+  stack: ["MIT", "TanStack Start", "Untitled UI", "Supabase", "PostgreSQL"],
 } as const;

@@ -14,9 +14,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version-file: .node-version
+          cache: pnpm
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -25,11 +29,11 @@ jobs:
           node scripts/check-source-integrity.mjs
           node --experimental-strip-types --test tests/*.test.mjs
       - name: Install web dependencies
-        run: bun install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Web build
-        run: bun run build
+        run: pnpm build
       - name: Web typecheck (installed TypeScript)
-        run: ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+        run: pnpm typecheck
       - name: Install server dependencies
         working-directory: server
         run: bun install --frozen-lockfile
