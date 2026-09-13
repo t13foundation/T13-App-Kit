@@ -1,5 +1,7 @@
 # T13 App Kit
 
+**Lovable and independent GitHub setup:** read [Lovable.md](Lovable.md) for remix prerequisites, provider selection and the required acceptance flow. Lovable compatibility is a delivery requirement, not yet a verified result.
+
 Zestaw startowy do budowania aplikacji z gotowych podstaw, zamiast odtwarzania ich przy każdym nowym projekcie.
 
 T13 App Kit łączy kod aplikacji React, backend TypeScript, mechanizmy kont i bezpieczeństwa, komponenty interfejsu oraz instrukcje dla agentów programistycznych. Powstaje dla małych aplikacji i większych produktów, rozwijanych przez ludzi oraz narzędzia takie jak Codex i Lovable. Docelowy zakres obejmuje także osobnego klienta iOS i Android.
