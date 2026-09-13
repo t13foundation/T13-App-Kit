@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import {
   Alert,
+  LayoutShowcase,
   Badge,
   Button,
   Checkbox,
@@ -19,8 +19,6 @@ import {
   Toggle,
 } from "@/components/kit";
 import { appConfig, kitInfo } from "@/app.config";
-import { getStatus } from "@/lib/account";
-import { ApiRequestError } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,31 +33,29 @@ export const Route = createFileRoute("/")({
 const structure = [
   {
     term: "src/components/kit/",
-    description: "Jedyna warstwa UI: tokeny, prymitywy i bloki stron.",
+    description: "Wspólne komponenty, układy i ustawienia wyglądu.",
   },
   {
     term: "src/routes/",
-    description: "Trasy TanStack Start: przegląd, ekrany konta i proxy /api.",
+    description: "Trasy TanStack Start: przegląd, prywatne Notes i zachowane ekrany legacy.",
   },
   {
     term: "src/lib/",
-    description: "Klient API, klient Better Auth i serwerowe proxy o stałym adresie.",
+    description: "Oficjalny klient Supabase. Klient i proxy legacy są odizolowane.",
   },
-  { term: "server/", description: "Fastify + Better Auth + PostgreSQL; osobny graf zależności." },
+  { term: "server/", description: "Zachowany backend legacy, którego Notes nie wymaga." },
   { term: "shared/", description: "Kontrakty Zod współdzielone przez aplikację i API." },
-  { term: "docs/", description: "Karty modułów, instrukcja startu i zapis weryfikacji." },
+  { term: "docs/", description: "Dokumentacja modułów, startu i weryfikacji." },
 ];
 
 const boundaries = [
-  "Wdrożenie produkcyjne, hosting, domena i realna poczta wychodząca nie są częścią tego wydania.",
-  "Interfejs jest po polsku; ustawienie regionalne zmienia formaty dat, nie tłumaczenia.",
-  "Pliki, organizacje, role, płatności i moduł AI pozostają zaplanowane, nie dostarczone.",
-  "Eksport konta obejmuje profil i preferencje wywołującego — nigdy sekretów ani cudzych danych.",
+  "Obecna wersja służy do sprawdzenia zestawu na danych testowych.",
+  "Interfejs jest po polsku. Ustawienie regionalne zmienia format dat, ale nie język.",
+  "Pliki, organizacje, role, płatności i moduł AI są zaplanowane, ale jeszcze niedostarczone.",
+  "Ustawienia konta i inne funkcje legacy nie zostały jeszcze przeniesione.",
 ];
 
 function Overview() {
-  const status = useQuery({ queryKey: ["status"], queryFn: getStatus, retry: false });
-
   return (
     <>
       <PageHeader
@@ -75,8 +71,8 @@ function Overview() {
             <Button href="#komponenty" color="secondary">
               Zobacz komponenty
             </Button>
-            <Button href="/account" color="tertiary">
-              Ekran konta
+            <Button href="/notes" color="tertiary">
+              Prywatne notatki
             </Button>
           </>
         }
@@ -85,24 +81,24 @@ function Overview() {
       <PageSection
         id="czym-jest"
         title="Czym jest ten zestaw"
-        description="Punkt wyjścia do aplikacji z kontem użytkownika: jedna warstwa UI, jedno uwierzytelnianie, jeden zestaw kontraktów."
+        description="Zacznij od gotowej bazy. Poniżej sprawdzisz, co już działa, jak uruchomić projekt i z których elementów korzystać przy jego rozbudowie."
       >
         <SpecList
           items={[
             {
               term: "Uwierzytelnianie",
               description:
-                "Better Auth po stronie serwera i oficjalny klient po stronie aplikacji. Bez własnego protokołu logowania.",
+                "Supabase Auth: rejestracja, kod potwierdzający, logowanie i wylogowanie.",
             },
             {
               term: "Interfejs",
               description:
-                "Prymitywy Untitled UI (MIT) na tokenach w neutralnej skali szarości. Bez drugiej biblioteki komponentów.",
+                "Komponenty Untitled UI na licencji MIT. Kolory i odstępy są wspólne dla całej aplikacji.",
             },
             {
-              term: "Granica API",
+              term: "Prywatne dane",
               description:
-                "Przeglądarka nie zna adresu backendu. Cały ruch idzie przez serwerowe proxy o stałym adresie docelowym.",
+                "Notes używa publicznego klucza Supabase. Baza sprawdza tożsamość, potwierdzony adres i właściciela danych.",
             },
             {
               term: "Marka",
@@ -115,71 +111,59 @@ function Overview() {
 
       <PageSection
         id="start"
-        title="Szybki start"
-        description="Cztery kroki do działającej aplikacji z lokalną bazą danych i lokalną skrzynką pocztową."
+        title="Szybki start dla programisty"
+        description="Przygotuj lokalną bazę i skrzynkę pocztową, a potem uruchom aplikację."
       >
-        <CodeBlock caption="1 — usługi lokalne (PostgreSQL na 5433, Mailpit na 8025)">
-          docker compose up -d
+        <CodeBlock caption="1 — zainstaluj przypięte zależności">
+          {"# Node 22.16.0, pnpm 10.34.5\npnpm install --frozen-lockfile"}
         </CodeBlock>
-        <CodeBlock caption="2 — zależności aplikacji i API (osobne grafy)">
+        <CodeBlock caption="2 — skonfiguruj środowisko (zachowaj istniejący plik)">
           {
-            "bun install --frozen-lockfile\ncd server && bun install --frozen-lockfile && bun run db:migrate"
+            "test -e .env || cp .env.example .env\n# Ustaw publiczny URL i klucz Supabase według docs/supabase.md"
           }
         </CodeBlock>
-        <CodeBlock caption="3 — konfiguracja (pliki .env pozostają poza repozytorium)">
-          {"cp .env.example .env\ncp server/.env.example server/.env"}
-        </CodeBlock>
-        <CodeBlock caption="4 — uruchomienie API i aplikacji">
+        <CodeBlock caption="3 — uruchom lokalny Supabase i migrację">
           {
-            "cd server && bun run dev   # http://127.0.0.1:3001\nbun run dev               # http://127.0.0.1:3000"
+            "pnpm exec supabase start --exclude storage-api,imgproxy,studio,postgres-meta\npnpm exec supabase migration up --local"
           }
         </CodeBlock>
-
+        <CodeBlock caption="4 — uruchom aplikację">
+          {"pnpm dev --host 127.0.0.1 --port 4311 --strictPort"}
+        </CodeBlock>
         <Panel
-          title="Połączenie z API"
-          description="Sprawdzane na żywo przez proxy /api. Katalog komponentów działa również bez backendu."
+          title="Sprawdź konto i notatki"
+          description="W aplikacji zarejestruj konto, potwierdź kod z wiadomości i utwórz prywatną notatkę."
         >
-          {status.isPending ? (
-            <p role="status" className="text-sm text-tertiary">
-              Sprawdzanie połączenia…
-            </p>
-          ) : status.isError ? (
-            <Alert tone="error" title="Funkcje konta są niedostępne">
-              {status.error instanceof ApiRequestError
-                ? status.error.message
-                : "Nie można sprawdzić połączenia z backendem."}
-            </Alert>
-          ) : (
-            <Alert tone="success" title="Połączono z API">
-              Usługa konta odpowiada, a baza danych jest dostępna.
-            </Alert>
-          )}
-          <div className="flex flex-wrap gap-3">
-            <Button href="/sign-in">Zaloguj się</Button>
-            <Button href="/sign-up" color="secondary">
-              Utwórz konto
-            </Button>
-            <Button href="/account" color="tertiary">
-              Ustawienia konta
-            </Button>
-          </div>
+          <p className="text-sm text-tertiary">
+            Pełna instrukcja przygotowania bazy i lokalnej poczty: docs/supabase.md. Notes działa
+            bez uruchamiania backendu legacy.
+          </p>
+          <Button href="/notes">Otwórz prywatne notatki</Button>
         </Panel>
       </PageSection>
 
       <PageSection
         id="struktura"
         title="Struktura repozytorium"
-        description="Każdy katalog ma jedno zadanie. Nie ma równoległej warstwy UI ani drugiego klienta uwierzytelniania."
+        description="Każdy katalog ma jedno zadanie. Aplikacja korzysta z jednej warstwy UI i jednego klienta uwierzytelniania."
       >
         <SpecList items={structure} />
+      </PageSection>
+
+      <PageSection
+        id="uklady"
+        title="Gotowe układy stron"
+        description="Te same szerokości i odstępy na każdej stronie. Układ dopasowuje się do dostępnego miejsca."
+      >
+        <LayoutShowcase />
       </PageSection>
 
       <ComponentsSection />
 
       <PageSection
         id="granice"
-        title="Granice tego wydania"
-        description="Spis rzeczy, których ten zestaw nie dostarcza. Lista jest celowo wprost."
+        title="Stan zestawu"
+        description="Ta lista pokazuje, czego zestaw jeszcze nie dostarcza."
       >
         <ul className="flex flex-col gap-2">
           {boundaries.map((item) => (
@@ -197,7 +181,7 @@ function Overview() {
       <PageSection
         id="dalej"
         title="Dokumentacja"
-        description="Trwałe ustalenia są w repozytorium, nie na tej stronie."
+        description="Aktualne ustalenia są w repozytorium."
       >
         <SpecList
           items={[
@@ -223,11 +207,11 @@ function ComponentsSection() {
     <PageSection
       id="komponenty"
       title="Komponenty"
-      description="Pełny zestaw prymitywów dostarczanych z tym kitem. Te same pliki i te same rozmiary są w T13 Site Kit."
+      description="Gotowe komponenty do wykorzystania w projekcie. Te same pliki i rozmiary są w T13 Site Kit."
     >
       <Showcase
         name="Button"
-        description="Trzy warianty barwne i stan ładowania. Z atrybutem href renderuje się jako link."
+        description="Trzy warianty kolorów i stan ładowania. Z atrybutem href przycisk staje się linkiem."
         code={
           '<Button>Zapisz</Button>\n<Button color="secondary">Anuluj</Button>\n<Button color="tertiary">Pomiń</Button>'
         }
@@ -241,10 +225,10 @@ function ComponentsSection() {
 
       <Showcase
         name="Input"
-        description="Etykieta, podpowiedź i stan błędu są częścią komponentu, nie osobnym układem."
+        description="Komponent obejmuje etykietę, podpowiedź i komunikat błędu."
         code={'<Input label="E-mail" hint="Adres służbowy lub prywatny." />'}
       >
-        <div className="grid w-full gap-4 sm:grid-cols-2">
+        <div className="kit-grid w-full">
           <Input
             label="E-mail"
             placeholder="nazwa@example.com"
@@ -256,22 +240,22 @@ function ComponentsSection() {
 
       <Showcase
         name="TextArea"
-        description="Wieloliniowe pole tekstowe o tej samej wysokości wiersza i tych samych stanach co Input."
+        description="Wielowierszowe pole tekstowe z tymi samymi stanami co Input."
         code={'<TextArea label="Notatka" placeholder="Treść" />'}
       >
-        <div className="w-full sm:max-w-sm">
+        <div data-measure="form" className="kit-measure">
           <TextArea label="Notatka" placeholder="Treść" />
         </div>
       </Showcase>
 
       <Showcase
         name="NativeSelect"
-        description="Natywna lista wyboru — działa na klawiaturze i na urządzeniach mobilnych bez dodatkowego kodu."
+        description="Natywna lista wyboru działa z klawiaturą i na telefonie bez dodatkowego kodu."
         code={
           '<NativeSelect label="Formaty regionalne" options={[{ value: "pl", label: "Polskie" }]} />'
         }
       >
-        <div className="w-full sm:max-w-xs">
+        <div data-measure="form" className="kit-measure">
           <NativeSelect
             label="Formaty regionalne"
             hint="Wybór zmienia formaty, nie tłumaczenia."
@@ -285,7 +269,7 @@ function ComponentsSection() {
 
       <Showcase
         name="Checkbox i Toggle"
-        description="Dwie kontrolki binarne. Checkbox przyjmuje podpowiedź, Toggle zmienia stan natychmiast."
+        description="Dwa sposoby wyboru opcji. Checkbox obsługuje podpowiedź, a Toggle zmienia stan od razu."
         code={
           '<Checkbox label="Akceptuję warunki" hint="Wymagane do założenia konta." />\n<Toggle label="Widok kompaktowy" />'
         }
@@ -306,7 +290,7 @@ function ComponentsSection() {
 
       <Showcase
         name="Alert"
-        description="Ton niosą ikona, treść i rola ARIA — nigdy sam kolor. Dzięki temu kit pozostaje neutralny."
+        description="Znaczenie komunikatu przekazują ikona, treść i rola ARIA, a nie sam kolor."
         code={'<Alert tone="error" title="Nie udało się zapisać">Spróbuj ponownie.</Alert>'}
       >
         <div className="flex w-full flex-col gap-3">
@@ -315,14 +299,14 @@ function ComponentsSection() {
             Zmiany zostały utrwalone.
           </Alert>
           <Alert tone="error" title="Nie udało się zapisać">
-            Spróbuj ponownie. Nieukończona operacja nie jest potwierdzeniem zapisu.
+            Sprawdź połączenie i spróbuj ponownie.
           </Alert>
         </div>
       </Showcase>
 
       <Showcase
         name="Badge"
-        description="Krótki fakt przy nagłówku: licencja, element stosu, status modułu."
+        description="Krótka informacja przy nagłówku: licencja, technologia lub status modułu."
         code={'<Badge>MIT</Badge>\n<Badge tone="subtle">planowane</Badge>'}
       >
         <Badge>MIT</Badge>
@@ -332,7 +316,7 @@ function ComponentsSection() {
 
       <Showcase
         name="Panel"
-        description="Karta z obramowaniem grupująca powiązane kontrolki wewnątrz sekcji."
+        description="Obramowana karta grupuje powiązane kontrolki w sekcji."
         code={'<Panel title="Połączenie z API" description="Sprawdzane na żywo.">…</Panel>'}
       >
         <Panel
@@ -346,17 +330,17 @@ function ComponentsSection() {
 
       <Showcase
         name="CodeBlock"
-        description="Polecenie lub fragment kodu. Przewija się w poziomie, więc komenda nigdy nie łamie się po cichu."
-        code={'<CodeBlock caption="instalacja">bun install</CodeBlock>'}
+        description="Polecenie lub fragment kodu. Dłuższe treści przewijają się poziomo."
+        code={'<CodeBlock caption="instalacja">pnpm install</CodeBlock>'}
       >
         <CodeBlock className="w-full" caption="instalacja">
-          bun install --frozen-lockfile
+          pnpm install --frozen-lockfile
         </CodeBlock>
       </Showcase>
 
       <p className="text-xs text-tertiary">
-        Prymitywy pochodzą z publicznego repozytorium untitleduico/react (MIT). Pochodzenie i zakres
-        vendorowania opisuje third-party/untitledui-react/SOURCE.md. Nazwa produktu w powłoce to „
+        Komponenty pochodzą z publicznego repozytorium untitleduico/react (MIT). Źródła i licencję
+        opisuje third-party/untitledui-react/SOURCE.md. Nazwa produktu w powłoce to „
         {appConfig.name}” i pochodzi z app.config.ts.
       </p>
     </PageSection>

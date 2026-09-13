@@ -18,12 +18,12 @@ export function Showcase({
   children: ReactNode;
 }) {
   return (
-    <article className="flex flex-col gap-3">
+    <article className="flex min-w-0 flex-col gap-3">
       <div>
         <h3 className="text-sm font-semibold text-primary">{name}</h3>
         <p className="mt-1 text-sm text-tertiary">{description}</p>
       </div>
-      <div className="flex flex-wrap items-start gap-4 rounded-lg border border-secondary bg-primary p-5">
+      <div className="flex min-w-0 flex-wrap items-start gap-4 rounded-lg border border-secondary bg-primary p-5 *:min-w-0 *:max-w-full">
         {children}
       </div>
       <CodeBlock>{code}</CodeBlock>

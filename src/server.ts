@@ -1,3 +1,4 @@
+import { protectNotesResponse } from "./lib/supabase/response-policy";
 import { renderErrorPage } from "./lib/error-page";
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -48,7 +49,7 @@ export default {
           return failure(request);
         }
       }
-      return response;
+      return protectNotesResponse(request, response);
     } catch {
       // Never print exception contents, request URLs, cookies or reset tokens.
       console.error("web_request_failed");

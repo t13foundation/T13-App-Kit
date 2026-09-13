@@ -144,7 +144,7 @@ export function AccountSettings({ me, refresh }: { me: Me; refresh: () => Promis
       <PageSection title="Profil" description="Nazwa widoczna w aplikacji.">
         <form
           method="post"
-          className="flex max-w-md flex-col gap-4"
+          className="flex max-w-[var(--kit-form-max)] flex-col gap-4"
           onSubmit={(event) => {
             const data = values(event);
             const parsed = profileSchema.safeParse({ name: text(data, "name") });
@@ -185,7 +185,7 @@ export function AccountSettings({ me, refresh }: { me: Me; refresh: () => Promis
       <PageSection title="Preferencje" description="Ustawienia zapisywane na Twoim koncie.">
         <form
           method="post"
-          className="flex max-w-md flex-col gap-4"
+          className="flex max-w-[var(--kit-form-max)] flex-col gap-4"
           onSubmit={(event) => {
             const data = values(event);
             const parsed = preferencesSchema.safeParse({
@@ -241,7 +241,7 @@ export function AccountSettings({ me, refresh }: { me: Me; refresh: () => Promis
       >
         <form
           method="post"
-          className="flex max-w-md flex-col gap-4"
+          className="flex max-w-[var(--kit-form-max)] flex-col gap-4"
           onSubmit={(event) => {
             const form = event.currentTarget;
             const data = values(event);
@@ -308,7 +308,7 @@ export function AccountSettings({ me, refresh }: { me: Me; refresh: () => Promis
         </p>
 
         {enrollment ? (
-          <div className="flex max-w-md flex-col gap-4">
+          <div className="flex max-w-[var(--kit-form-max)] flex-col gap-4">
             {!confirmed && (
               <>
                 <p className="text-sm text-tertiary">
@@ -396,7 +396,7 @@ export function AccountSettings({ me, refresh }: { me: Me; refresh: () => Promis
         ) : (
           <form
             method="post"
-            className="flex max-w-md flex-col gap-4"
+            className="flex max-w-[var(--kit-form-max)] flex-col gap-4"
             onSubmit={(event) => {
               const form = event.currentTarget;
               const password = text(values(event), "password");

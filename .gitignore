@@ -40,3 +40,7 @@ test-results/
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase CLI local runtime state
+/supabase/.branches/
+/supabase/.temp/

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Container } from "../layout/container";
 
 /**
  * Centered card used by every account screen. Classic, roomy, no illustration
@@ -16,11 +17,11 @@ export function AuthCard({
   footer?: ReactNode;
 }) {
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col px-5 py-12 sm:py-16">
+    <Container size="form" className="kit-section">
       <h1 className="text-display-xs font-semibold tracking-tight text-primary">{title}</h1>
       {description ? <p className="mt-2 text-sm text-tertiary">{description}</p> : null}
       <div className="mt-8 flex flex-col gap-5">{children}</div>
       {footer ? <div className="mt-8 text-sm text-tertiary">{footer}</div> : null}
-    </div>
+    </Container>
   );
 }

@@ -26,7 +26,10 @@
     "src/components/kit/blocks/panel.tsx",
     "src/components/kit/blocks/showcase.tsx",
     "src/components/kit/blocks/spec-list.tsx",
-    "src/styles.css"
+    "src/styles.css",
+    "src/components/kit/layout/layouts.tsx",
+    "src/components/kit/blocks/layout-showcase.tsx",
+    "src/components/kit/themes/layout.css"
   ],
   "sha256": {
     "src/components/kit/tokens/theme.css": "52241a7d0d28f7022b59f11006d5f4b6b38e8173ef1ef2d81fb62cde520e344c",
@@ -45,15 +48,18 @@
     "src/components/kit/feedback/alert.tsx": "7ccf4ee6cdedfe25495a73d65c5ba7b300b5c2f4ef863b49e7af55e48f67ea8f",
     "src/components/kit/feedback/badge.tsx": "e4faa68244b5ef4dc4690da2134135a69f718c7867f7ab1c325d79786fe36d30",
     "src/components/kit/feedback/tooltip.tsx": "ce64d8d2f37ac660eb57f8844f37cfec95c5e99d3743c149d650527639054dd1",
-    "src/components/kit/layout/container.tsx": "040ac394734e66ff9d88d7feec2549d7743c72ce8ca6723d888140c279366c6f",
-    "src/components/kit/navigation/page-nav.tsx": "d785543fc89953fedd95ee5aeb83a74f20d6947a47a1412a3c1ce94966749483",
+    "src/components/kit/layout/container.tsx": "1c2d58a3a3a10c9aa0f2cd6b90f9d8095983fe264e3eeaee885b0f412858a170",
+    "src/components/kit/navigation/page-nav.tsx": "cc18a8b967911e0341719796a549641d8223846259e91f2ac3565d83849c03ee",
     "src/components/kit/navigation/page-footer.tsx": "4bd151907d2982b6a1cd5c439dce6aca3edfdd7c2b8c601a9aa2966b0f4b1031",
     "src/components/kit/blocks/code-block.tsx": "6e9636a467a17d67e01b3bb188ed6aa542a0bfab7a401daf4094dc267cfd8061",
-    "src/components/kit/blocks/page-header.tsx": "e62db86ac9203337db8acbeeed3492b78aca62e27fa60f519613863f7bcee992",
-    "src/components/kit/blocks/page-section.tsx": "a385d5353c4976370073bb9664542790ee41958f0db0bb0b2f0f7a6a53fa36ce",
+    "src/components/kit/blocks/page-header.tsx": "70c3e9c8627ee71dfb3fa9cb263a9e6ab394b227848edaf0dbc03102e14639ff",
+    "src/components/kit/blocks/page-section.tsx": "acc1b702d89eee217c35f0e990c78c90fb5e63606fed209e404333c95cbb0190",
     "src/components/kit/blocks/panel.tsx": "2d0e36de278423bcc1df3f29083c926e1d90d796387de81d2880d3c4300483c4",
-    "src/components/kit/blocks/showcase.tsx": "8863c4c88a247f8189c711d128dada9cb5c9ce9d1c7e4bb1419070b2680ae22f",
-    "src/components/kit/blocks/spec-list.tsx": "989bbc5d5eac8250688e0f60d7dfeabd43f6aaf61065d325aebb60306faa2f77",
-    "src/styles.css": "29aa66706238d85c479cd58a0fbb19848b53c91850cd3a185fdbebd94859a1e8"
+    "src/components/kit/blocks/showcase.tsx": "d2e17759eb4d55ed8ca15372b7fdb66eaae9fa65208beea6abe40db291862588",
+    "src/components/kit/blocks/spec-list.tsx": "3b58f71bd281fa92dbf6f2909a2b0af381cdb79ecd91d436e0e5a7b00e49c0d9",
+    "src/styles.css": "b4345302de3cd9bca336b71b8c98d9b2d8adcf95dca9507d798b3b58a49bbb88",
+    "src/components/kit/layout/layouts.tsx": "5e9f5a4defc5b1979bc8379f3dc59c181774ae4b45b9ab582505cbb6e3a3c2aa",
+    "src/components/kit/blocks/layout-showcase.tsx": "70d4df2e01bedd6ea921c9035ce33cbad107fd6d19fafa2a160074fb2652b75d",
+    "src/components/kit/themes/layout.css": "153dc647e3da1e4c0fbd87a6826d26de00f6b4a8f44a8ce66aced7bdc21c5fb1"
   }
 }

@@ -20,18 +20,20 @@ export function PageSection({
   children?: ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-20 border-b border-secondary py-12 sm:py-14">
+    <section id={id} className="scroll-mt-20 border-b border-secondary kit-section">
       <Container>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold tracking-tight text-primary">{title}</h2>
             {description ? (
-              <p className="mt-2 max-w-2xl text-sm text-tertiary">{description}</p>
+              <p data-measure="prose" className="kit-measure mt-2 text-sm text-tertiary">
+                {description}
+              </p>
             ) : null}
           </div>
           {actions}
         </div>
-        {children ? <div className="mt-8 flex flex-col gap-6">{children}</div> : null}
+        {children ? <div className="kit-stack mt-8">{children}</div> : null}
       </Container>
     </section>
   );

@@ -1,6 +1,7 @@
 @import "tailwindcss" source(none);
 @import "./components/kit/tokens/theme.css";
 @import "./components/kit/themes/neutral.css";
+@import "./components/kit/themes/layout.css";
 @source "../src";
 @plugin "tailwindcss-react-aria-components";
 

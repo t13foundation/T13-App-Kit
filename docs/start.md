@@ -1,6 +1,45 @@
 # Local development
 
-Use Node 22.16+ and Bun with the committed lockfiles. Web and API are separate processes.
+## Current Supabase Notes path
+
+Use Node 22.16.0 (`.node-version`) and pnpm 10.34.5 (`packageManager`). Do not use the host’s default runtime when it differs. The root has one active pnpm lockfile; `server/bun.lock` belongs only to the isolated legacy backend. Install pnpm 10.34.5 with your existing package-manager tooling.
+
+```sh
+node --version # v22.16.0
+pnpm --version # 10.34.5
+pnpm install --frozen-lockfile
+if [ ! -e .env ]; then cp .env.example .env; fi
+```
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the ignored `.env`. Use only the public publishable/legacy anon key; never a service-role or secret key. Both blank keeps the overview available and Notes shows an explicit configuration state. Partial/unsafe configuration fails before startup/build.
+
+Follow [the Supabase runbook](supabase.md) to inspect Docker, start an isolated local instance, apply the existing migration without a reset, and generate types. The existing test profile is `t13-apprev1`, project ID `t13-app-kit-demo`; API is 55321, database 55322, Mailpit 55324. Preserve existing environments and unrelated workloads.
+
+```sh
+export DOCKER_HOST="unix://${HOME}/.colima/t13-apprev1/docker.sock"
+pnpm exec supabase start --exclude storage-api,imgproxy,studio,postgres-meta
+pnpm exec supabase migration up --local
+pnpm dev --host 127.0.0.1 --port 4311 --strictPort
+```
+
+Open `http://127.0.0.1:4311/notes`. Create synthetic accounts, read their six-digit confirmation codes in local Mailpit (`http://127.0.0.1:55324`), confirm, then use Notes. Verification signs in the account; subsequent logins use its password. Logout clears the current SDK refresh session and Notes UI. Reload retains the browser SDK session when signed in; issued access JWTs may remain valid for up to 600 seconds after logout. No private user/Notes data is server-rendered. The app needs no Fastify/Better Auth process.
+
+The installation policy enforces a seven-day minimum package age, refuses missing release dates and rejects unreviewed dependency build scripts. `allowBuilds` narrowly permits `esbuild` (Vite tooling) and `supabase` (pinned local CLI installer); no other dependency build is implicitly approved.
+
+## Minimum end-of-change checks for this path
+
+After demonstrating the flow, run the repository source/parity checks, lint, typecheck, existing Node contract suite and build once:
+
+```sh
+pnpm verify
+APP_KIT_TEST_CONFIRM=LOCAL_SYNTHETIC pnpm test:notes:api
+```
+
+The API harness requires `SUPABASE_TEST_PUBLISHABLE_KEY` in the environment and refuses hosted endpoints. It uses synthetic local identities only. Pure Node tests do not prove live RLS. The lead owns real email, browser acceptance and dedicated hosted Cloudflare/Supabase setup.
+
+## Isolated legacy rollback path
+
+The sections below describe the preserved Fastify/Better Auth backend only. Accounts, passwords and sessions are not migrated into Supabase. Do not run both systems as if they share an identity. Legacy rollback of the UI/code uses Git and its unchanged backend dependencies; it does not erase Supabase data.
 
 ## Services
 
@@ -34,8 +73,8 @@ bun --env-file=.env run dev
 ## Web (another terminal, repository root)
 
 ```sh
-bun install --frozen-lockfile
-API_INTERNAL_URL=http://127.0.0.1:3001 bun run dev -- --port 8080
+pnpm install --frozen-lockfile
+API_INTERNAL_URL=http://127.0.0.1:3001 pnpm dev --port 8080
 ```
 
 Open `http://localhost:8080`. Without API_INTERNAL_URL the overview page and its
@@ -50,7 +89,7 @@ Do not fix that by enabling `trustProxy: true` or disabling origin checks.
 ```sh
 node --experimental-strip-types --test tests/*.test.mjs
 node scripts/check-source-integrity.mjs
-bun run build
+pnpm build
 ./node_modules/.bin/tsc --noEmit -p tsconfig.json
 (cd server && bun run typecheck && ./node_modules/.bin/vitest run tests/unit)
 ```
