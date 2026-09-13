@@ -1,0 +1,115 @@
+/* Project layout contract. Widths exclude the outer page gutters. */
+:root {
+  --kit-page-max: 80rem;
+  --kit-wide-max: 96rem;
+  --kit-form-max: 32rem;
+  --kit-prose-max: 65ch;
+  --kit-gutter: clamp(1rem, 3vw, 2rem);
+  --kit-section-space: clamp(2rem, 5vw, 4rem);
+  --kit-content-gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* Keep upstream controls intact; page composition permits enlarged labels to wrap. */
+@layer utilities {
+  .kit-container :is(button, a, label) {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
+@layer components {
+  .kit-container {
+    width: min(calc(100% - 2 * var(--kit-gutter)), var(--kit-page-max));
+    min-width: 0;
+    margin-inline: auto;
+    overflow-wrap: anywhere;
+    container: kit-content / inline-size;
+  }
+  .kit-container[data-width="wide"] {
+    width: min(calc(100% - 2 * var(--kit-gutter)), var(--kit-wide-max));
+  }
+  .kit-container[data-width="form"] {
+    width: min(calc(100% - 2 * var(--kit-gutter)), var(--kit-form-max));
+  }
+  .kit-container[data-width="prose"] {
+    width: min(calc(100% - 2 * var(--kit-gutter)), var(--kit-prose-max));
+  }
+  .kit-measure {
+    width: 100%;
+    min-width: 0;
+  }
+  .kit-measure[data-measure="form"] {
+    max-width: var(--kit-form-max);
+  }
+  .kit-measure[data-measure="prose"] {
+    max-width: var(--kit-prose-max);
+  }
+  .kit-section {
+    padding-block: var(--kit-section-space);
+  }
+  .kit-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--kit-content-gap);
+    min-width: 0;
+  }
+  .kit-stack > *,
+  .kit-grid > *,
+  .kit-sidebar > * {
+    min-width: 0;
+  }
+  .kit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--kit-content-gap);
+  }
+  .kit-sidebar {
+    display: grid;
+    gap: var(--kit-content-gap);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .kit-spec-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+    padding-block: 0.75rem;
+  }
+  .kit-page-title {
+    max-width: 28ch;
+    font-size: clamp(1.75rem, 1.25rem + 1.5vw, 2.5rem);
+    line-height: 1.2;
+  }
+  .kit-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    min-height: 4rem;
+    padding-block: 0.75rem;
+  }
+  .kit-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    min-width: 0;
+  }
+  .kit-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+  .kit-container pre {
+    max-width: 100%;
+  }
+  @container kit-content (min-width: 40rem) {
+    .kit-spec-row {
+      grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+      gap: 1rem;
+    }
+  }
+  @container kit-content (min-width: 56rem) {
+    .kit-sidebar {
+      grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
+    }
+  }
+}

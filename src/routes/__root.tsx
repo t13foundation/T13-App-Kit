@@ -89,7 +89,8 @@ function ErrorComponent({ reset }: { error: Error; reset: () => void }) {
     <Container className="flex flex-col items-start gap-4 py-20">
       <h1 className="text-display-xs font-semibold text-primary">Nie udało się wczytać strony</h1>
       <p className="text-sm text-tertiary">
-        Spróbuj ponownie. Nieukończona operacja nie jest potwierdzeniem zapisu.
+        Spróbuj ponownie. Jeśli błąd wystąpił podczas zapisywania, sprawdź dane przed ponowieniem
+        zmiany.
       </p>
       <div className="flex flex-wrap gap-3">
         <Button

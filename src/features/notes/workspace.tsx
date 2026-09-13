@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { Alert, Button, Input, TextArea } from "../../components/kit";
+import { Alert, Button, Input, TextArea, PageLayout, FormLayout } from "../../components/kit";
 import type { Database } from "../../lib/supabase/database.types";
 import { deleteNote, listNotes, saveNote, type Note, type NotesClient } from "./repository";
 import { NOTE_BODY_LIMIT, NOTE_TITLE_LIMIT } from "./validation";
@@ -55,14 +55,10 @@ export function SupabaseWorkspace() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-5 py-10">
-      <div>
-        <h1 className="text-2xl font-semibold text-primary">Prywatne notatki</h1>
-        <p className="mt-2 text-sm text-tertiary">
-          Przykład konta i danych chronionych przez Supabase. To wzorzec do rozbudowy aplikacji, nie
-          gotowy produkt.
-        </p>
-      </div>
+    <PageLayout
+      title="Prywatne notatki"
+      description="Zapisuj i edytuj własne notatki. Dostęp do nich masz tylko Ty."
+    >
       {notice && <Alert tone="error">{notice}</Alert>}
       {loading ? (
         <p role="status">Wczytywanie sesji…</p>
@@ -101,7 +97,7 @@ export function SupabaseWorkspace() {
           <NotesBoard key={user.id} client={client} actorId={user.id} />
         </>
       )}
-    </div>
+    </PageLayout>
   );
 }
 
@@ -135,9 +131,7 @@ function AuthPanel({ client }: { client: Client }) {
         if (result.error) throw new Error();
         // Changing the form key removes the password while retaining the confirmation address.
         setMode("verify");
-        setMessage(
-          "Sprawdź skrzynkę i wpisz kod potwierdzający. Lokalnie wiadomości trafiają do Mailpit.",
-        );
+        setMessage("Sprawdź pocztę i wpisz sześciocyfrowy kod z wiadomości.");
       } else if (mode === "verify") {
         const result = await client.auth.verifyOtp({
           email: address,
@@ -167,131 +161,138 @@ function AuthPanel({ client }: { client: Client }) {
   }
 
   return (
-    <section aria-labelledby="notes-auth-title" className="max-w-md space-y-5">
-      <h2 id="notes-auth-title" className="text-lg font-semibold">
-        {title}
-      </h2>
-      <p className="text-sm text-tertiary">
-        Konto Supabase jest oddzielne od zachowanego backendu legacy. Konta i sesje nie są
-        automatycznie migrowane.
-      </p>
-      {message && <Alert tone="success">{message}</Alert>}
-      {error && <Alert tone="error">{error}</Alert>}
-      <form
-        key={mode}
-        method="post"
-        onSubmit={(event) => {
-          void submit(event);
-        }}
-        className="space-y-4"
-      >
-        <Input
-          name="email"
-          label="E-mail"
-          type="email"
-          autoComplete="email"
-          isRequired
-          isDisabled={pending}
-          value={email}
-          onChange={setEmail}
-        />
-        {mode === "verify" ? (
-          <Input
-            name="code"
-            label="Kod z wiadomości"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            pattern="[0-9]{6}"
-            minLength={6}
-            maxLength={6}
-            isRequired
-            isDisabled={pending}
-          />
-        ) : (
-          <Input
-            name="password"
-            label="Hasło"
-            type="password"
-            autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-            minLength={mode === "sign-up" ? 12 : undefined}
-            isRequired
-            isDisabled={pending}
-            hint={mode === "sign-up" ? "Minimum 12 znaków." : undefined}
-          />
-        )}
-        <Button type="submit" isLoading={pending} isDisabled={pending}>
+    <FormLayout>
+      <section aria-labelledby="notes-auth-title" className="kit-stack">
+        <h2 id="notes-auth-title" className="text-lg font-semibold">
           {title}
-        </Button>
-      </form>
-      <div className="flex flex-wrap gap-3">
-        {mode !== "sign-in" && (
-          <Button
-            color="secondary"
+        </h2>
+        <p className="text-sm text-tertiary">
+          {mode === "sign-in"
+            ? "Zaloguj się, aby otworzyć swoje notatki."
+            : mode === "sign-up"
+              ? "Podaj e-mail i hasło. Następnie potwierdź adres kodem z wiadomości."
+              : "Wpisz sześciocyfrowy kod wysłany na Twój adres e-mail."}
+        </p>
+        {message && <Alert tone="success">{message}</Alert>}
+        {error && <Alert tone="error">{error}</Alert>}
+        <form
+          key={mode}
+          method="post"
+          onSubmit={(event) => {
+            void submit(event);
+          }}
+          className="space-y-4"
+        >
+          <Input
+            name="email"
+            label="E-mail"
+            type="email"
+            autoComplete="email"
+            isRequired
             isDisabled={pending}
-            onClick={() => {
-              setMode("sign-in");
-              setError(null);
-              setMessage(null);
-            }}
-          >
-            Mam już konto
+            value={email}
+            onChange={setEmail}
+          />
+          {mode === "verify" ? (
+            <Input
+              name="code"
+              label="Kod z wiadomości"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]{6}"
+              minLength={6}
+              maxLength={6}
+              isRequired
+              isDisabled={pending}
+            />
+          ) : (
+            <Input
+              name="password"
+              label="Hasło"
+              type="password"
+              autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
+              minLength={mode === "sign-up" ? 12 : undefined}
+              isRequired
+              isDisabled={pending}
+              hint={mode === "sign-up" ? "Minimum 12 znaków." : undefined}
+            />
+          )}
+          <Button type="submit" isLoading={pending} isDisabled={pending}>
+            {title}
           </Button>
-        )}
-        {mode !== "sign-up" && (
-          <Button
-            color="secondary"
-            isDisabled={pending}
-            onClick={() => {
-              setMode("sign-up");
-              setError(null);
-              setMessage(null);
-            }}
-          >
-            Nowe konto
-          </Button>
-        )}
-        {mode !== "verify" && (
-          <Button
-            color="tertiary"
-            isDisabled={pending}
-            onClick={() => {
-              setMode("verify");
-              setError(null);
-              setMessage(null);
-            }}
-          >
-            Mam kod potwierdzający
-          </Button>
-        )}
-        {mode === "verify" && (
-          <Button
-            color="secondary"
-            isDisabled={pending || !email}
-            onClick={() => {
-              if (pendingRef.current) return;
-              pendingRef.current = true;
-              setPending(true);
-              setError(null);
-              setMessage(null);
-              void client.auth
-                .resend({ type: "signup", email })
-                .then(({ error: cause }) => {
-                  if (cause)
-                    setError("Nie potwierdzono wysłania kodu. Odczekaj chwilę i spróbuj ponownie.");
-                  else setMessage("Jeżeli adres oczekuje na potwierdzenie, otrzymasz nowy kod.");
-                })
-                .catch(() => setError("Nie potwierdzono wysłania kodu."))
-                .finally(() => {
-                  pendingRef.current = false;
-                  setPending(false);
-                });
-            }}
-          >
-            Wyślij kod ponownie
-          </Button>
-        )}
-      </div>
-    </section>
+        </form>
+        <div className="flex flex-wrap gap-3">
+          {mode !== "sign-in" && (
+            <Button
+              color="secondary"
+              isDisabled={pending}
+              onClick={() => {
+                setMode("sign-in");
+                setError(null);
+                setMessage(null);
+              }}
+            >
+              Mam już konto
+            </Button>
+          )}
+          {mode !== "sign-up" && (
+            <Button
+              color="secondary"
+              isDisabled={pending}
+              onClick={() => {
+                setMode("sign-up");
+                setError(null);
+                setMessage(null);
+              }}
+            >
+              Nowe konto
+            </Button>
+          )}
+          {mode !== "verify" && (
+            <Button
+              color="tertiary"
+              isDisabled={pending}
+              onClick={() => {
+                setMode("verify");
+                setError(null);
+                setMessage(null);
+              }}
+            >
+              Mam kod potwierdzający
+            </Button>
+          )}
+          {mode === "verify" && (
+            <Button
+              color="secondary"
+              isDisabled={pending || !email}
+              onClick={() => {
+                if (pendingRef.current) return;
+                pendingRef.current = true;
+                setPending(true);
+                setError(null);
+                setMessage(null);
+                void client.auth
+                  .resend({ type: "signup", email })
+                  .then(({ error: cause }) => {
+                    if (cause)
+                      setError(
+                        "Nie potwierdzono wysłania kodu. Odczekaj chwilę i spróbuj ponownie.",
+                      );
+                    else setMessage("Jeżeli adres oczekuje na potwierdzenie, otrzymasz nowy kod.");
+                  })
+                  .catch(() => setError("Nie potwierdzono wysłania kodu."))
+                  .finally(() => {
+                    pendingRef.current = false;
+                    setPending(false);
+                  });
+              }}
+            >
+              Wyślij kod ponownie
+            </Button>
+          )}
+        </div>
+      </section>
+    </FormLayout>
   );
 }
 
@@ -349,7 +350,11 @@ function NotesBoard({ client, actorId }: { client: NotesClient; actorId: string 
       setPage(0);
       setRevision((value) => value + 1);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Nie potwierdzono operacji.");
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Nie udało się potwierdzić zmiany. Sprawdź notatkę przed ponowieniem.",
+      );
     } finally {
       busyRef.current = false;
       setBusy(false);
@@ -362,7 +367,7 @@ function NotesBoard({ client, actorId }: { client: NotesClient; actorId: string 
         <h2 id="notes-list-title" className="text-lg font-semibold">
           Twoje notatki
         </h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             isDisabled={busy}
             onClick={() => {
@@ -392,7 +397,8 @@ function NotesBoard({ client, actorId }: { client: NotesClient; actorId: string 
         <form
           key={editing ? `${editing.id}:${editing.updated_at}` : "new"}
           method="post"
-          className="space-y-4 rounded-xl border border-secondary p-4"
+          data-measure="form"
+          className="kit-measure space-y-4 rounded-xl border border-secondary p-4"
           onSubmit={(event) => {
             event.preventDefault();
             const values = new FormData(event.currentTarget);
@@ -424,7 +430,7 @@ function NotesBoard({ client, actorId }: { client: NotesClient; actorId: string 
             isDisabled={busy}
             rows={6}
           />
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button type="submit" isLoading={busy} isDisabled={busy}>
               Zapisz notatkę
             </Button>
@@ -439,7 +445,7 @@ function NotesBoard({ client, actorId }: { client: NotesClient; actorId: string 
           <p className="break-words">
             Usunąć notatkę „{removing.title}”? Tej operacji nie można cofnąć.
           </p>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button
               isLoading={busy}
               isDisabled={busy}
@@ -473,8 +479,13 @@ function NotesBoard({ client, actorId }: { client: NotesClient; actorId: string 
           {notes.map((note) => (
             <li key={note.id} className="space-y-3 rounded-xl border border-secondary p-4">
               <h3 className="break-words font-semibold">{note.title}</h3>
-              <p className="whitespace-pre-wrap break-words text-sm text-secondary">{note.body}</p>
-              <div className="flex gap-3">
+              <p
+                data-measure="prose"
+                className="kit-measure whitespace-pre-wrap break-words text-sm text-secondary"
+              >
+                {note.body}
+              </p>
+              <div className="flex flex-wrap gap-3">
                 <Button
                   color="secondary"
                   isDisabled={busy}

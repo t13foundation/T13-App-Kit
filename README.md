@@ -1,5 +1,7 @@
 # T13 App Kit
 
+Created by the T13.AI team to help people and AI agents build applications from reusable foundations, reducing repeated setup and token use. See the live overview for components and layouts, and [the layout contract](docs/layouts.md) before adding a page.
+
 **Lovable and independent GitHub setup:** read [Lovable.md](Lovable.md) for remix prerequisites, provider selection and the required acceptance flow. Lovable compatibility is a delivery requirement, not yet a verified result.
 
 Zestaw startowy do budowania aplikacji z gotowych podstaw, zamiast odtwarzania ich przy każdym nowym projekcie.

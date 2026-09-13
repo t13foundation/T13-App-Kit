@@ -29,3 +29,5 @@
 - Run the minimum relevant checks at the end of a coherent increment. Preserve existing tests and their database guards.
 - Report exact results: syntax, full typecheck, build and integration are different checks. Never reuse an old pass for new code.
 - No production deployment, publication, visibility change, paid cloud enablement or changes to Site Kit without a separate request.
+
+For screen composition, read [docs/layouts.md](docs/layouts.md). Use the canonical layout and named widths; do not recreate page gutters or widths in routes.

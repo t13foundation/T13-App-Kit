@@ -13,7 +13,7 @@
  *   controls/   button, checkbox, toggle
  *   forms/      input, label, hint, textarea, native select, pin input, form
  *   feedback/   alert, badge, tooltip
- *   layout/     the single page measure
+ *   layout/     named page widths and responsive compositions
  *   navigation/ application shell navigation
  *   blocks/     composed page-level building blocks
  */
@@ -51,3 +51,12 @@ export { Showcase } from "./blocks/showcase";
 export { SpecList } from "./blocks/spec-list";
 
 export { cx } from "./utils/cx";
+
+export {
+  PageLayout,
+  FormLayout,
+  ArticleLayout,
+  SidebarLayout,
+  ContentGrid,
+} from "./layout/layouts";
+export { LayoutShowcase } from "./blocks/layout-showcase";

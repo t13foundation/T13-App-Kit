@@ -5,9 +5,11 @@ export function SpecList({ items }: { items: { term: string; description: ReactN
   return (
     <dl className="divide-y divide-secondary border-y border-secondary">
       {items.map((item) => (
-        <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[14rem_1fr] sm:gap-4">
+        <div key={item.term} className="kit-spec-row">
           <dt className="text-sm font-medium text-secondary">{item.term}</dt>
-          <dd className="text-sm text-tertiary">{item.description}</dd>
+          <dd data-measure="prose" className="kit-measure text-sm text-tertiary">
+            {item.description}
+          </dd>
         </div>
       ))}
     </dl>

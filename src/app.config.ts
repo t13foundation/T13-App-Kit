@@ -18,6 +18,6 @@ export const kitInfo = {
   name: "T13 App Kit",
   title: "Startowy zestaw aplikacji z kontem użytkownika",
   summary:
-    "Biała aplikacja TanStack Start z gotowym uwierzytelnianiem, ekranem konta i jedną warstwą komponentów. Przeznaczona do rozwinięcia w produkt, nie do wdrożenia w obecnej postaci.",
+    "App Kit to zestaw startowy zespołu T13.AI do tworzenia aplikacji. Łączy gotowe komponenty, układy stron i podstawy kont użytkowników, abyś mógł skupić się na funkcjach swojego produktu. Powstał z myślą o pracy z agentami AI: mniej budowania od nowa, mniej czasu i tokenów.",
   stack: ["MIT", "TanStack Start", "Untitled UI", "Supabase", "PostgreSQL"],
 } as const;
