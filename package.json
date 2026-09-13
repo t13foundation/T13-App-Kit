@@ -59,10 +59,5 @@
   "engines": {
     "node": "22.16.0",
     "pnpm": "10.34.5"
-  },
-  "pnpm": {
-    "overrides": {
-      "rolldown": "1.2.1"
-    }
   }
 }

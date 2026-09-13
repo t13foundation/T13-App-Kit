@@ -52,7 +52,7 @@ Generate types into a temporary file after applying the migration and replace th
 if the command succeeds:
 
 ```sh
-pnpm exec supabase gen types typescript --local > /tmp/app-kit-database.types.ts
+pnpm exec supabase gen types typescript --local --schema public > /tmp/app-kit-database.types.ts
 pnpm exec prettier --config .prettierrc --write /tmp/app-kit-database.types.ts
 cmp -s /tmp/app-kit-database.types.ts src/lib/supabase/database.types.ts || \
   cp /tmp/app-kit-database.types.ts src/lib/supabase/database.types.ts
